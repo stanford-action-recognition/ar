@@ -25,10 +25,10 @@ nTestInterval = 20 # Run on test set every nTestInterval epochs
 snapshot = 50 # Store a model every snapshot epochs
 lr = 1e-3 # Learning rate
 
-dataset = 'ucf101' # Options: hmdb51 or ucf101
+dataset = 'hmdb51' # Options: hmdb51 or ucf101
 
 if dataset == 'hmdb51':
-    num_classes=51
+    num_classes = 51
 elif dataset == 'ucf101':
     num_classes = 101
 else:
