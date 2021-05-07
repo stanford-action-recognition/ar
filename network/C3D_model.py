@@ -147,7 +147,7 @@ def get_10x_lr_params(model):
 
 if __name__ == "__main__":
     inputs = torch.rand(1, 3, 16, 112, 112)
-    net = C3D(num_classes=101, pretrained=True)
+    net = C3D(num_classes=101, pretrained=False)
 
     outputs = net.forward(inputs)
     print(outputs.size())
