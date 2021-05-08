@@ -80,12 +80,16 @@ def train_model():
         criterion = (
             nn.CrossEntropyLoss()
         )  # standard crossentropy loss for classification
-        optimizer = optim.SGD(
-            train_params, lr=config.lr, momentum=0.9, weight_decay=5e-4
-        )
-        scheduler = optim.lr_scheduler.StepLR(
-            optimizer, step_size=10, gamma=0.1
-        )  # the scheduler divides the lr by 10 every 10 epochs
+
+        if config.optimizer == "SGD":
+            optimizer = optim.SGD(
+                train_params, lr=config.lr, momentum=0.9, weight_decay=5e-4
+            )
+        elif config.optimizer == "Adam":
+            optimizer = optim.Adam(model.parameters(), lr=config.lr)
+        else:
+            print("Not supported optimizer.")
+            raise NotImplementedError
 
         if resume_epoch == 0:
             print("Training {} from scratch...".format(config.model))
@@ -150,7 +154,7 @@ def train_model():
                 # or being validated. Primarily affects layers such as BatchNorm or Dropout.
                 if phase == "train":
                     # scheduler.step() is to be called once every epoch during training
-                    scheduler.step()
+                    optimizer.step()
                     model.train()
                 else:
                     model.eval()
