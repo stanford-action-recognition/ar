@@ -187,9 +187,14 @@ def train_model():
 
                     if phase == "train":
                         loss.backward()
+                        torch.nn.utils.clip_grad_norm_(
+                            model.parameters(), config.clip_max_norm
+                        )
                         optimizer.step()
 
                     running_loss += loss.item() * inputs.size(0)
+                    print("running_loss", running_loss)
+
                     running_corrects += torch.sum(preds == labels.data)
 
                 epoch_loss = running_loss / trainval_sizes[phase]
