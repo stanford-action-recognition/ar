@@ -42,4 +42,10 @@ def get_args():
         default="SGD",
         help="Adam, SGD (default: SGD)",
     )
+    parser.add_argument(
+        "--num_workers",
+        type=int,
+        default=8,
+        help="number of workers (default: 8)",
+    )
     return parser.parse_args()
