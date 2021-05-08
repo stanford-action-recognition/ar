@@ -36,4 +36,10 @@ def get_args():
         default=0.1,
         help="max norm of the gradients (default: 0.1)",
     )
+    parser.add_argument(
+        "--optimizer",
+        type=str,
+        default="SGD",
+        help="Adam, SGD (default: SGD)",
+    )
     return parser.parse_args()
