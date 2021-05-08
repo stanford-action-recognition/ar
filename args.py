@@ -19,6 +19,12 @@ def get_args():
         "--lr", type=float, default=1e-3, help="Learning rate (default: 1e-3)"
     )
     parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=20,
+        help="input batch size for training (default: 20)",
+    )
+    parser.add_argument(
         "--epochs",
         type=int,
         default=100,
