@@ -20,6 +20,11 @@ from network import C3D_model, R2Plus1D_model, R3D_model
 def train_model():
     args = get_args()
 
+    resume_epoch = 0  # Default is 0, change if want to resume
+    useTest = False  # See evolution of the test set when training
+    test_interval = 20  # Run on test set every nTestInterval epochs
+    save_epoch = 50  # Store a model every snapshot epochs
+
     with wandb.init(
         project="ar", entity="stanford-action-recognition", config=args
     ) as wb:
@@ -27,11 +32,6 @@ def train_model():
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("Device being used:", device)
-
-        resume_epoch = 0  # Default is 0, change if want to resume
-        useTest = False  # See evolution of the test set when training
-        test_interval = 20  # Run on test set every nTestInterval epochs
-        save_epoch = 50  # Store a model every snapshot epochs
 
         if config.dataset == "hmdb51":
             num_classes = 51
