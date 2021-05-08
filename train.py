@@ -1,13 +1,9 @@
-import timeit
-from datetime import datetime
-import socket
 import os
 import glob
 from tqdm import tqdm
 import wandb
 
 import torch
-from tensorboardX import SummaryWriter
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
@@ -42,7 +38,6 @@ def train_model():
             raise NotImplementedError
 
         save_dir_root = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        exp_name = os.path.dirname(os.path.abspath(__file__)).split("/")[-1]
 
         if resume_epoch != 0:
             runs = sorted(glob.glob(os.path.join(save_dir_root, "run", "run_*")))
@@ -122,13 +117,6 @@ def train_model():
         model.to(device)
         criterion.to(device)
 
-        log_dir = os.path.join(
-            save_dir,
-            "models",
-            datetime.now().strftime("%b%d_%H-%M-%S") + "_" + socket.gethostname(),
-        )
-        writer = SummaryWriter(log_dir=log_dir)
-
         print("Training model on {} dataset...".format(config.dataset))
         train_dataloader = DataLoader(
             VideoDataset(dataset=config.dataset, split="train", clip_len=16),
@@ -154,8 +142,6 @@ def train_model():
         for epoch in range(resume_epoch, config.epochs):
             # each epoch has a training and validation step
             for phase in ["train", "val"]:
-                start_time = timeit.default_timer()
-
                 # reset the running loss and corrects
                 running_loss = 0.0
                 running_corrects = 0.0
@@ -201,8 +187,6 @@ def train_model():
                 epoch_acc = running_corrects.double() / trainval_sizes[phase]
 
                 if phase == "train":
-                    writer.add_scalar("data/train_loss_epoch", epoch_loss, epoch)
-                    writer.add_scalar("data/train_acc_epoch", epoch_acc, epoch)
                     wb.log(
                         {
                             "epoch": epoch,
@@ -211,8 +195,6 @@ def train_model():
                         }
                     )
                 else:
-                    writer.add_scalar("data/val_loss_epoch", epoch_loss, epoch)
-                    writer.add_scalar("data/val_acc_epoch", epoch_acc, epoch)
                     wb.log(
                         {
                             "epoch": epoch,
@@ -226,8 +208,6 @@ def train_model():
                         phase, epoch + 1, config.epochs, epoch_loss, epoch_acc
                     )
                 )
-                stop_time = timeit.default_timer()
-                print("Execution time: " + str(stop_time - start_time) + "\n")
 
             if epoch % save_epoch == (save_epoch - 1):
                 torch.save(
@@ -254,7 +234,6 @@ def train_model():
 
             if useTest and epoch % test_interval == (test_interval - 1):
                 model.eval()
-                start_time = timeit.default_timer()
 
                 running_loss = 0.0
                 running_corrects = 0.0
@@ -275,11 +254,9 @@ def train_model():
                 epoch_loss = running_loss / test_size
                 epoch_acc = running_corrects.double() / test_size
 
-                writer.add_scalar("data/test_loss_epoch", epoch_loss, epoch)
-                writer.add_scalar("data/test_acc_epoch", epoch_acc, epoch)
                 wb.log(
                     {
-                        "epoch": epoch + 1,
+                        "epoch": epoch,
                         "test_loss": epoch_loss,
                         "test_acc": epoch_acc,
                     }
@@ -290,10 +267,6 @@ def train_model():
                         epoch + 1, config.epochs, epoch_loss, epoch_acc
                     )
                 )
-                stop_time = timeit.default_timer()
-                print("Execution time: " + str(stop_time - start_time) + "\n")
-
-        writer.close()
 
 
 if __name__ == "__main__":
