@@ -31,7 +31,7 @@ The code was tested with Anaconda and Python 3.5. After installing the Anaconda 
 1. Install dependencies:
    ```shell
    conda install opencv
-   pip install tqdm scikit-learn tensorboardX
+   pip install tqdm scikit-learn tensorboardX wandb
    ```
 
 1. Change the dataset and pretrained model path in **mypath.py**.
@@ -41,7 +41,7 @@ The code was tested with Anaconda and Python 3.5. After installing the Anaconda 
 First time running this command, it will pre-process the video to images.
 
 ```shell
-python train.py
+make train
 ```
 
 ## References
