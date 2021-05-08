@@ -200,7 +200,7 @@ def train_model():
                     writer.add_scalar("data/train_acc_epoch", epoch_acc, epoch)
                     wb.log(
                         {
-                            "epoch": epoch + 1,
+                            "epoch": epoch,
                             "train_loss": epoch_loss,
                             "train_acc": epoch_acc,
                         }
@@ -210,7 +210,7 @@ def train_model():
                     writer.add_scalar("data/val_acc_epoch", epoch_acc, epoch)
                     wb.log(
                         {
-                            "epoch": epoch + 1,
+                            "epoch": epoch,
                             "val_loss": epoch_loss,
                             "val_acc": epoch_acc,
                         }
@@ -272,6 +272,13 @@ def train_model():
 
                 writer.add_scalar("data/test_loss_epoch", epoch_loss, epoch)
                 writer.add_scalar("data/test_acc_epoch", epoch_acc, epoch)
+                wb.log(
+                    {
+                        "epoch": epoch + 1,
+                        "test_loss": epoch_loss,
+                        "test_acc": epoch_acc,
+                    }
+                )
 
                 print(
                     "[test] Epoch: {}/{} Loss: {} Acc: {}".format(
