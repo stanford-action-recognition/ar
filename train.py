@@ -1,6 +1,3 @@
-import timeit
-from datetime import datetime
-import socket
 import os
 import glob
 from tqdm import tqdm
@@ -145,8 +142,6 @@ def train_model():
         for epoch in range(resume_epoch, config.epochs):
             # each epoch has a training and validation step
             for phase in ["train", "val"]:
-                start_time = timeit.default_timer()
-
                 # reset the running loss and corrects
                 running_loss = 0.0
                 running_corrects = 0.0
@@ -213,8 +208,6 @@ def train_model():
                         phase, epoch + 1, config.epochs, epoch_loss, epoch_acc
                     )
                 )
-                stop_time = timeit.default_timer()
-                print("Execution time: " + str(stop_time - start_time) + "\n")
 
             if epoch % save_epoch == (save_epoch - 1):
                 torch.save(
@@ -241,7 +234,6 @@ def train_model():
 
             if useTest and epoch % test_interval == (test_interval - 1):
                 model.eval()
-                start_time = timeit.default_timer()
 
                 running_loss = 0.0
                 running_corrects = 0.0
@@ -275,8 +267,6 @@ def train_model():
                         epoch + 1, config.epochs, epoch_loss, epoch_acc
                     )
                 )
-                stop_time = timeit.default_timer()
-                print("Execution time: " + str(stop_time - start_time) + "\n")
 
 
 if __name__ == "__main__":
