@@ -30,4 +30,10 @@ def get_args():
         default=100,
         help="number of epochs to train (default: 100)",
     )
+    parser.add_argument(
+        "--clip_max_norm",
+        type=float,
+        default=0.1,
+        help="max norm of the gradients (default: 0.1)",
+    )
     return parser.parse_args()
