@@ -41,7 +41,7 @@ The code was tested with Anaconda and Python 3.5. After installing the Anaconda 
 First time running this command, it will pre-process the video to images.
 
 ```shell
-python train.py
+make train
 ```
 
 ## References
