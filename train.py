@@ -198,9 +198,23 @@ def train_model():
                 if phase == "train":
                     writer.add_scalar("data/train_loss_epoch", epoch_loss, epoch)
                     writer.add_scalar("data/train_acc_epoch", epoch_acc, epoch)
+                    wb.log(
+                        {
+                            "epoch": epoch + 1,
+                            "train_loss": epoch_loss,
+                            "train_acc": epoch_acc,
+                        }
+                    )
                 else:
                     writer.add_scalar("data/val_loss_epoch", epoch_loss, epoch)
                     writer.add_scalar("data/val_acc_epoch", epoch_acc, epoch)
+                    wb.log(
+                        {
+                            "epoch": epoch + 1,
+                            "val_loss": epoch_loss,
+                            "val_acc": epoch_acc,
+                        }
+                    )
 
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
