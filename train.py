@@ -29,7 +29,7 @@ def train_model():
         print("Device being used:", device)
 
         resume_epoch = 0  # Default is 0, change if want to resume
-        useTest = True  # See evolution of the test set when training
+        useTest = False  # See evolution of the test set when training
         test_interval = 20  # Run on test set every nTestInterval epochs
         save_epoch = 50  # Store a model every snapshot epochs
 
