@@ -256,7 +256,7 @@ def train_model():
 
                 wb.log(
                     {
-                        "epoch": epoch + 1,
+                        "epoch": epoch,
                         "test_loss": epoch_loss,
                         "test_acc": epoch_acc,
                     }
