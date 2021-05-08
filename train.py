@@ -79,6 +79,9 @@ def train_model():
         else:
             print("We only implemented C3D and R2Plus1D models.")
             raise NotImplementedError
+
+        wb.watch(model)
+
         criterion = (
             nn.CrossEntropyLoss()
         )  # standard crossentropy loss for classification
