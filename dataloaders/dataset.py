@@ -15,7 +15,7 @@ class VideoDataset(Dataset):
     inferred from the respective folder names.
 
         Args:
-            dataset (str): Name of dataset. Defaults to 'ucf101'.
+            dataset (str): Name of dataset.
             split (str): Determines which folder of the directory the dataset will read from. Defaults to 'train'.
             clip_len (int): Determines how many frames are there in each clip. Defaults to 16.
             preprocess (bool): Determines whether to preprocess dataset. Default is False.
