@@ -19,7 +19,6 @@ def train_model():
     resume_epoch = 0  # Default is 0, change if want to resume
     useTest = False  # See evolution of the test set when training
     test_interval = 20  # Run on test set every nTestInterval epochs
-    save_epoch = 50  # Store a model every snapshot epochs
 
     with wandb.init(
         project="ar", entity="stanford-action-recognition", config=args
@@ -227,29 +226,6 @@ def train_model():
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
                         phase, epoch + 1, config.epochs, epoch_loss, epoch_acc
-                    )
-                )
-
-            if epoch % save_epoch == (save_epoch - 1):
-                torch.save(
-                    {
-                        "epoch": epoch + 1,
-                        "state_dict": model.state_dict(),
-                        "opt_dict": optimizer.state_dict(),
-                    },
-                    os.path.join(
-                        save_dir,
-                        "models",
-                        saveName + "_epoch-" + str(epoch) + ".pth.tar",
-                    ),
-                )
-                print(
-                    "Save model at {}\n".format(
-                        os.path.join(
-                            save_dir,
-                            "models",
-                            saveName + "_epoch-" + str(epoch) + ".pth.tar",
-                        )
                     )
                 )
 
