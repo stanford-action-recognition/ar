@@ -160,14 +160,15 @@ class VideoDataset(Dataset):
             )
 
             if self.dataset_percentage < 1.0:
+                drop_percentage = 1 - self.dataset_percentage
                 train, _ = train_test_split(
-                    train, test_size=self.dataset_percentage, random_state=42
+                    train, test_size=drop_percentage, random_state=42
                 )
                 val, _ = train_test_split(
-                    val, test_size=self.dataset_percentage, random_state=42
+                    val, test_size=drop_percentage, random_state=42
                 )
                 test, _ = train_test_split(
-                    test, test_size=self.dataset_percentage, random_state=42
+                    test, test_size=drop_percentage, random_state=42
                 )
 
             train_dir = os.path.join(self.output_dir, "train", file)
