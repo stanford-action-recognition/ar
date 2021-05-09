@@ -31,7 +31,7 @@ The code was tested with Anaconda and Python 3.5. After installing the Anaconda 
 1. Install dependencies:
    ```shell
    conda install opencv
-   pip install tqdm scikit-learn wandb
+   pip install tqdm scikit-learn wandb torch torchvision
    ```
 
 1. Change the dataset and pretrained model path in **mypath.py**.
