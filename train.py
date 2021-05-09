@@ -14,7 +14,6 @@ from network import C3D_model, R2Plus1D_model, R3D_model
 def train_model():
     args = get_args()
 
-    resume_epoch = 0  # Default is 0, change if want to resume
     useTest = False  # See evolution of the test set when training
     test_interval = 20  # Run on test set every nTestInterval epochs
 
@@ -122,7 +121,7 @@ def train_model():
         trainval_sizes = {x: len(trainval_loaders[x].dataset) for x in ["train", "val"]}
         test_size = len(test_dataloader.dataset)
 
-        for epoch in range(resume_epoch, config.epochs):
+        for epoch in range(0, config.epochs):
             # each epoch has a training and validation step
             for phase in ["train", "val"]:
                 # reset the running loss and corrects
