@@ -26,9 +26,9 @@ def train_model():
         print("config", config)
         print("device", device)
 
-        if config.dataset == "hmdb51":
+        if config.dataset == "HMDB51":
             num_classes = 51
-        elif config.dataset == "ucf101":
+        elif config.dataset == "UCF101":
             num_classes = 101
         else:
             print("We only implemented hmdb and ucf datasets.")

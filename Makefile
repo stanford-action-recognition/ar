@@ -1,6 +1,6 @@
 debug:
 	python train.py \
-      --dataset hmdb51 \
+      --dataset HMDB51 \
       --dataset_percentage 0.1 \
       --model C3D --lr 0.001 \
       --batch_size 20 \
@@ -12,7 +12,7 @@ debug:
 
 train:
 	python train.py \
-      --dataset hmdb51 \
+      --dataset HMDB51 \
       --dataset_percentage 1.0 \
       --model C3D --lr 0.001 \
       --batch_size 20 \
