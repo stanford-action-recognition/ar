@@ -1,5 +1,3 @@
-import os
-import glob
 from tqdm import tqdm
 import wandb
 
@@ -36,18 +34,6 @@ def train_model():
             print("We only implemented hmdb and ucf datasets.")
             raise NotImplementedError
 
-        save_dir_root = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-
-        if resume_epoch != 0:
-            runs = sorted(glob.glob(os.path.join(save_dir_root, "run", "run_*")))
-            run_id = int(runs[-1].split("_")[-1]) if runs else 0
-        else:
-            runs = sorted(glob.glob(os.path.join(save_dir_root, "run", "run_*")))
-            run_id = int(runs[-1].split("_")[-1]) + 1 if runs else 0
-
-        save_dir = os.path.join(save_dir_root, "run", "run_" + str(run_id))
-        saveName = config.model + "-" + config.dataset
-
         if config.model == "C3D":
             model = C3D_model.C3D(num_classes=num_classes, pretrained=False)
             train_params = [
@@ -76,9 +62,7 @@ def train_model():
 
         wb.watch(model)
 
-        criterion = (
-            nn.CrossEntropyLoss()
-        )  # standard crossentropy loss for classification
+        criterion = nn.CrossEntropyLoss()
 
         if config.optimizer == "SGD":
             optimizer = optim.SGD(
@@ -89,29 +73,6 @@ def train_model():
         else:
             print("Not supported optimizer.")
             raise NotImplementedError
-
-        if resume_epoch == 0:
-            print("Training {} from scratch...".format(config.model))
-        else:
-            checkpoint = torch.load(
-                os.path.join(
-                    save_dir,
-                    "models",
-                    saveName + "_epoch-" + str(resume_epoch - 1) + ".pth.tar",
-                ),
-                map_location=lambda storage, loc: storage,
-            )  # Load all tensors onto the CPU
-            print(
-                "Initializing weights from: {}...".format(
-                    os.path.join(
-                        save_dir,
-                        "models",
-                        saveName + "_epoch-" + str(resume_epoch - 1) + ".pth.tar",
-                    )
-                )
-            )
-            model.load_state_dict(checkpoint["state_dict"])
-            optimizer.load_state_dict(checkpoint["opt_dict"])
 
         print(
             "Total params: %.2fM"
