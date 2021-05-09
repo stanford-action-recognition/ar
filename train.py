@@ -211,7 +211,8 @@ def train_model():
                             "epoch": epoch,
                             "train_loss": epoch_loss,
                             "train_acc": epoch_acc,
-                        }
+                        },
+                        step=epoch,
                     )
                 else:
                     wb.log(
@@ -219,7 +220,8 @@ def train_model():
                             "epoch": epoch,
                             "val_loss": epoch_loss,
                             "val_acc": epoch_acc,
-                        }
+                        },
+                        step=epoch,
                     )
 
                 print(
@@ -278,7 +280,8 @@ def train_model():
                         "epoch": epoch,
                         "test_loss": epoch_loss,
                         "test_acc": epoch_acc,
-                    }
+                    },
+                    step=epoch,
                 )
 
                 print(
