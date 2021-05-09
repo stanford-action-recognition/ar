@@ -21,9 +21,17 @@ class VideoDataset(Dataset):
             preprocess (bool): Determines whether to preprocess dataset. Default is False.
     """
 
-    def __init__(self, dataset="ucf101", split="train", clip_len=16, preprocess=False):
+    def __init__(
+        self,
+        dataset="ucf101",
+        dataset_percentage=1.0,
+        split="train",
+        clip_len=16,
+        preprocess=False,
+    ):
         self.root_dir, self.output_dir = Path.db_dir(dataset)
         folder = os.path.join(self.output_dir, split)
+        self.dataset_percentage = dataset_percentage
         self.clip_len = clip_len
         self.split = split
 
@@ -150,6 +158,17 @@ class VideoDataset(Dataset):
             train, val = train_test_split(
                 train_and_valid, test_size=0.2, random_state=42
             )
+
+            if self.dataset_percentage < 1.0:
+                train, _ = train_test_split(
+                    train, test_size=self.dataset_percentage, random_state=42
+                )
+                val, _ = train_test_split(
+                    val, test_size=self.dataset_percentage, random_state=42
+                )
+                test, _ = train_test_split(
+                    test, test_size=self.dataset_percentage, random_state=42
+                )
 
             train_dir = os.path.join(self.output_dir, "train", file)
             val_dir = os.path.join(self.output_dir, "val", file)

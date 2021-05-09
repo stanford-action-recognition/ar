@@ -10,6 +10,12 @@ def get_args():
         help="hmdb51, ucf101 (default: hmdb51)",
     )
     parser.add_argument(
+        "--dataset_percentage",
+        type=float,
+        default=1.0,
+        help="dataset percentage (default: 1.0)",
+    )
+    parser.add_argument(
         "--model",
         type=str,
         default="C3D",

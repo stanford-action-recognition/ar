@@ -123,18 +123,33 @@ def train_model():
 
         print("Training model on {} dataset...".format(config.dataset))
         train_dataloader = DataLoader(
-            VideoDataset(dataset=config.dataset, split="train", clip_len=16),
+            VideoDataset(
+                dataset=config.dataset,
+                dataset_percentage=config.dataset_percentage,
+                split="train",
+                clip_len=16,
+            ),
             batch_size=config.batch_size,
             shuffle=True,
             num_workers=config.num_workers,
         )
         val_dataloader = DataLoader(
-            VideoDataset(dataset=config.dataset, split="val", clip_len=16),
+            VideoDataset(
+                dataset=config.dataset,
+                dataset_percentage=config.dataset_percentage,
+                split="val",
+                clip_len=16,
+            ),
             batch_size=config.batch_size,
             num_workers=config.num_workers,
         )
         test_dataloader = DataLoader(
-            VideoDataset(dataset=config.dataset, split="test", clip_len=16),
+            VideoDataset(
+                dataset=config.dataset,
+                dataset_percentage=config.dataset_percentage,
+                split="test",
+                clip_len=16,
+            ),
             batch_size=config.batch_size,
             num_workers=config.num_workers,
         )
