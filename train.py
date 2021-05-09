@@ -22,9 +22,9 @@ def train_model():
         project="ar", entity="stanford-action-recognition", config=args
     ) as wb:
         config = wb.config
-
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        print("Device being used:", device)
+        print("config", config)
+        print("device", device)
 
         if config.dataset == "hmdb51":
             num_classes = 51
