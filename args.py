@@ -31,6 +31,12 @@ def get_args():
         help="input batch size for training (default: 20)",
     )
     parser.add_argument(
+        "--dropout_rate",
+        type=float,
+        default=0.2,
+        help="dropout rate (default: 0.2)",
+    )
+    parser.add_argument(
         "--epochs",
         type=int,
         default=100,

@@ -35,7 +35,11 @@ def train_model():
             raise NotImplementedError
 
         if config.model == "C3D":
-            model = C3D_model.C3D(num_classes=num_classes, pretrained=False)
+            model = C3D_model.C3D(
+                num_classes=num_classes,
+                dropout_rate=config.dropout_rate,
+                pretrained=False,
+            )
             train_params = [
                 {"params": C3D_model.get_1x_lr_params(model), "lr": config.lr},
                 {"params": C3D_model.get_10x_lr_params(model), "lr": config.lr * 10},
