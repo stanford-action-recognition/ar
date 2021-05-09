@@ -6,8 +6,8 @@ def get_args():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="hmdb51",
-        help="hmdb51, ucf101 (default: hmdb51)",
+        default="HMDB51",
+        help="HMDB51, UCF101 (default: HMDB51)",
     )
     parser.add_argument(
         "--dataset_percentage",
@@ -51,8 +51,8 @@ def get_args():
     parser.add_argument(
         "--optimizer",
         type=str,
-        default="SGD",
-        help="Adam, SGD (default: SGD)",
+        default="Adam",
+        help="Adam, SGD (default: Adam)",
     )
     parser.add_argument(
         "--num_workers",

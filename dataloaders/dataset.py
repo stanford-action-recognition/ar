@@ -23,7 +23,7 @@ class VideoDataset(Dataset):
 
     def __init__(
         self,
-        dataset="ucf101",
+        dataset,
         dataset_percentage=1.0,
         split="train",
         clip_len=16,
@@ -74,13 +74,13 @@ class VideoDataset(Dataset):
             [self.label2index[label] for label in labels], dtype=int
         )
 
-        if dataset == "ucf101":
+        if dataset == "UCF101":
             if not os.path.exists("dataloaders/ucf_labels.txt"):
                 with open("dataloaders/ucf_labels.txt", "w") as f:
                     for id, label in enumerate(sorted(self.label2index)):
                         f.writelines(str(id + 1) + " " + label + "\n")
 
-        elif dataset == "hmdb51":
+        elif dataset == "HMDB51":
             if not os.path.exists("dataloaders/hmdb_labels.txt"):
                 with open("dataloaders/hmdb_labels.txt", "w") as f:
                     for id, label in enumerate(sorted(self.label2index)):
@@ -297,7 +297,7 @@ if __name__ == "__main__":
     from torch.utils.data import DataLoader
 
     train_data = VideoDataset(
-        dataset="ucf101", split="test", clip_len=8, preprocess=False
+        dataset="HMDB51", split="test", clip_len=8, preprocess=False
     )
     train_loader = DataLoader(train_data, batch_size=100, shuffle=True, num_workers=8)
 
