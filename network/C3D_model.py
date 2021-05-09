@@ -8,7 +8,7 @@ class C3D(nn.Module):
     The C3D network.
     """
 
-    def __init__(self, num_classes, dropout_rate, pretrained=False):
+    def __init__(self, num_classes, dropout_rate=0.2, pretrained=False):
         super(C3D, self).__init__()
 
         self.conv1 = nn.Conv3d(3, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1))
@@ -168,7 +168,7 @@ def get_10x_lr_params(model):
 
 if __name__ == "__main__":
     inputs = torch.rand(1, 3, 16, 112, 112)
-    net = C3D(num_classes=101, pretrained=False)
+    net = C3D(num_classes=55, pretrained=False)
 
     outputs = net.forward(inputs)
     print(outputs.size())
