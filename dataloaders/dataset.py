@@ -61,7 +61,7 @@ class RGBDataset(Dataset):
             label_name = '_'.join(txt_name.split("_")[:-2])
             f = open(os.path.join(self.splits_dir, txt_name), "r")
             for avi_name in f.readlines():
-                self.fnames.append(os.path.join(self.dataset_dir, avi_name[:-7]))
+                self.fnames.append(os.path.join(self.output_dir, self.split, avi_name[:-7]))
                 labels.append(label_name)
 
         assert len(labels) == len(self.fnames)
@@ -233,7 +233,8 @@ class FlowDataset(Dataset):
     inferred from the respective folder names.
 
         Args:
-            dataset (str): Name of dataset.
+            in_channel: The frame window size for both u and v (i.e. we adopt in_channel frames from u and v
+            respectively so there are totally 2 * in_channel channels for the input to C3D).
             split (str): Determines which folder of the directory the dataset will read from. Defaults to 'train'.
             clip_len (int): Determines how many frames are there in each clip. Defaults to 16.
             preprocess (bool): Determines whether to preprocess dataset. Default is False.
@@ -244,12 +245,14 @@ class FlowDataset(Dataset):
         dataset_dir,
         splits_dir,
         output_dir,
+        in_channel=10,
         dataset_percentage=1.0,
         split="train",
         clip_len=16,
         preprocess=False,
     ):
         self.dataset_dir, self.splits_dir, self.output_dir = dataset_dir, splits_dir, output_dir
+        self.in_channel = in_channel
         self.dataset_percentage = dataset_percentage
         self.clip_len = clip_len
         self.split = split
@@ -280,8 +283,8 @@ class FlowDataset(Dataset):
             f = open(os.path.join(self.splits_dir, txt_name), "r")
             for avi_name in f.readlines():
                 self.fnames.append((
-                    os.path.join(self.dataset_dir, "u", avi_name[:-7]),
-                    os.path.join(self.dataset_dir, "v", avi_name[:-7]),
+                    os.path.join(self.output_dir, self.split, "u", avi_name[:-7]),
+                    os.path.join(self.output_dir, self.split, "v", avi_name[:-7]),
                 ))
                 labels.append(label_name)
 
@@ -307,14 +310,18 @@ class FlowDataset(Dataset):
 
     def __getitem__(self, index):
         # Loading and preprocessing.
-        u_buffer = self.load_frames(self.fnames[index][0])
-        v_buffer = self.load_frames(self.fnames[index][1])
-        buffer = np.empty(u_buffer.shape[0] * 2, *u_buffer.shape[1:])
-        for i in range(len(u_buffer)):
-            buffer[i * 2] = u_buffer[i]
-            buffer[i * 2 + 1] = v_buffer[i]
-        # self.clip_len * 2 for both u and v
-        buffer = self.crop(buffer, self.clip_len * 2, self.crop_size)
+        buffer = []
+        for i in range(self.in_channel):
+            # buffer format before squeeze: [num_frame x H x W x C]
+            # Since each pixel of grayscale images have the same value across R, G, B channels, only keep one of them.
+            u_buffer = np.squeeze(self.load_frames(self.fnames[min(index+i, len(self.fnames))][0])[:, :, :, 0])
+            v_buffer = np.squeeze(self.load_frames(self.fnames[min(index+i, len(self.fnames))][1])[:, :, :, 0])
+            buffer.append(u_buffer)
+            buffer.append(v_buffer)
+        # [C x num_frame x H x W] --> [num_frame x H x W x C], where C is frame window size.
+        buffer = np.array(buffer).transpose((1, 2, 3, 0))
+
+        buffer = self.crop(buffer, self.clip_len, self.crop_size)
         labels = np.array(self.label_array[index])
 
         if self.split == "test":
