@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 
 from args import get_args
-from dataloaders.dataset import VideoDataset
+from dataloaders.dataset import RGBDataset
 from network import C3D_model, R2Plus1D_model, R3D_model
 
 
@@ -86,7 +86,7 @@ def train_model():
 
         print("Training model on {} dataset...".format(config.dataset))
         train_dataloader = DataLoader(
-            VideoDataset(
+            RGBDataset(
                 dataset=config.dataset,
                 dataset_percentage=config.dataset_percentage,
                 split="train",
@@ -97,7 +97,7 @@ def train_model():
             num_workers=config.num_workers,
         )
         val_dataloader = DataLoader(
-            VideoDataset(
+            RGBDataset(
                 dataset=config.dataset,
                 dataset_percentage=config.dataset_percentage,
                 split="val",
@@ -107,7 +107,7 @@ def train_model():
             num_workers=config.num_workers,
         )
         test_dataloader = DataLoader(
-            VideoDataset(
+            RGBDataset(
                 dataset=config.dataset,
                 dataset_percentage=config.dataset_percentage,
                 split="test",
