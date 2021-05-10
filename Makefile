@@ -9,7 +9,7 @@ train-c3d:
 		--num_workers 6 \
 		--clip_max_norm 0.1 \
 		--optimizer Adam \
-		--c3d_dropout_rate 0.2 # avoid adding it if you are running other models for better W&B statistics
+		--c3d_dropout_rate 0.2
 
 train-r3d:
 	python train.py \

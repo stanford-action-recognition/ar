@@ -3,6 +3,7 @@ import argparse
 
 def get_args():
     parser = argparse.ArgumentParser(description="Action Recognition")
+
     parser.add_argument(
         "--dataset",
         type=str,
@@ -31,12 +32,6 @@ def get_args():
         help="input batch size for training (default: 20)",
     )
     parser.add_argument(
-        "--c3d_c3d_dropout_rate",
-        type=float,
-        default=0.2,
-        help="dropout rate (default: 0.2)",
-    )
-    parser.add_argument(
         "--epochs",
         type=int,
         default=100,
@@ -60,4 +55,14 @@ def get_args():
         default=8,
         help="number of workers (default: 8)",
     )
+
+    # C3D only
+    parser.add_argument(
+        "--c3d_dropout_rate",
+        type=float,
+        help="C3D dropout rate",
+        nargs="?",
+        const="",
+    )
+
     return parser.parse_args()
