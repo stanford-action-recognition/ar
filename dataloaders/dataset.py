@@ -55,10 +55,10 @@ class RGBDataset(Dataset):
             )
             self.preprocess()
 
-        self.fnames = []
+        self.fnames, labels = [], []
         data_dir = os.path.join(self.output_dir, self.split)
-        labels = os.listdir(data_dir)
-        for label in labels:
+        unique_labels = os.listdir(data_dir)
+        for label in unique_labels:
             label_dir = os.path.join(data_dir, label)
             video_names = os.listdir(label_dir)
             for video_name in video_names:
@@ -66,6 +66,7 @@ class RGBDataset(Dataset):
                     os.path.join(label_dir, video_name),
                     os.path.join(label_dir, video_name),
                 ))
+                labels.append(label)
 
         assert len(labels) == len(self.fnames)
         print("Number of {} videos: {:d}".format(split, len(self.fnames)))
@@ -289,10 +290,10 @@ class FlowDataset(Dataset):
             )
             self.preprocess()
 
-        self.fnames = []
+        self.fnames, labels = [], []
         data_dir = os.path.join(self.output_dir, self.split)
-        labels = os.listdir(os.path.join(data_dir, "u"))
-        for label in labels:
+        unique_labels = os.listdir(os.path.join(data_dir, "u"))
+        for label in unique_labels:
             label_dir = os.path.join(data_dir, "u", label)
             video_names = os.listdir(label_dir)
             for video_name in video_names:
@@ -300,6 +301,7 @@ class FlowDataset(Dataset):
                     os.path.join(data_dir, "u", label, video_name),
                     os.path.join(data_dir, "u", label, video_name),
                 ))
+                labels.append(label)
 
         assert len(labels) == len(self.fnames)
         print("Number of {} videos: {:d}".format(split, len(self.fnames)))
