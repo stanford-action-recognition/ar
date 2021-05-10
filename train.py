@@ -36,7 +36,7 @@ def train_model():
         if config.model == "C3D":
             model = C3D_model.C3D(
                 num_classes=num_classes,
-                dropout_rate=config.dropout_rate,
+                c3d_dropout_rate=config.c3d_dropout_rate,
                 pretrained=False,
             )
             train_params = [

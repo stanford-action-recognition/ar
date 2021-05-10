@@ -19,7 +19,7 @@ def get_args():
         "--model",
         type=str,
         default="C3D",
-        help="C3D， R2Plus1D， R3D (default: C3D)",
+        help="C3D，R2Plus1D R3D (default: C3D)",
     )
     parser.add_argument(
         "--lr", type=float, default=1e-3, help="Learning rate (default: 1e-3)"
@@ -31,7 +31,7 @@ def get_args():
         help="input batch size for training (default: 20)",
     )
     parser.add_argument(
-        "--dropout_rate",
+        "--c3d_c3d_dropout_rate",
         type=float,
         default=0.2,
         help="dropout rate (default: 0.2)",

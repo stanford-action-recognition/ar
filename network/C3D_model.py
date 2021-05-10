@@ -8,7 +8,7 @@ class C3D(nn.Module):
     The C3D network.
     """
 
-    def __init__(self, num_classes, dropout_rate=0.2, pretrained=False):
+    def __init__(self, num_classes, c3d_dropout_rate=0.2, pretrained=False):
         super(C3D, self).__init__()
 
         self.conv1 = nn.Conv3d(3, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1))
@@ -40,7 +40,7 @@ class C3D(nn.Module):
         self.fc7 = nn.Linear(4096, 4096)
         self.fc8 = nn.Linear(4096, num_classes)
 
-        self.dropout = nn.Dropout(p=dropout_rate)
+        self.dropout = nn.Dropout(p=c3d_dropout_rate)
 
         self.relu = nn.ReLU()
 
