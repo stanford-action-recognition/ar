@@ -55,14 +55,17 @@ class RGBDataset(Dataset):
             )
             self.preprocess()
 
-
-        self.fnames, labels = [], []
-        for txt_name in sorted(os.listdir(self.splits_dir)):
-            label_name = '_'.join(txt_name.split("_")[:-2])
-            f = open(os.path.join(self.splits_dir, txt_name), "r")
-            for avi_name in f.readlines():
-                self.fnames.append(os.path.join(self.output_dir, self.split, avi_name[:-7]))
-                labels.append(label_name)
+        self.fnames = []
+        data_dir = os.path.join(self.output_dir, self.split)
+        labels = os.listdir(data_dir)
+        for label in labels:
+            label_dir = os.path.join(data_dir, label)
+            video_names = os.listdir(label_dir)
+            for video_name in video_names:
+                self.fnames.append((
+                    os.path.join(label_dir, video_name),
+                    os.path.join(label_dir, video_name),
+                ))
 
         assert len(labels) == len(self.fnames)
         print("Number of {} videos: {:d}".format(split, len(self.fnames)))
@@ -114,17 +117,38 @@ class RGBDataset(Dataset):
     def preprocess(self):
         if not os.path.exists(self.output_dir):
             os.mkdir(self.output_dir)
-            os.mkdir(os.path.join(self.output_dir, "train"))
-            os.mkdir(os.path.join(self.output_dir, "val"))
-            os.mkdir(os.path.join(self.output_dir, "test"))
+
+        train_dir = os.path.join(self.output_dir, "train")
+        val_dir = os.path.join(self.output_dir, "val")
+        test_dir = os.path.join(self.output_dir, "test")
+
+        if not os.path.exists(train_dir):
+            os.mkdir(train_dir)
+        if not os.path.exists(val_dir):
+            os.mkdir(val_dir)
+        if not os.path.exists(test_dir):
+            os.mkdir(test_dir)
 
         # Split train/val/test sets
-        for file in os.listdir(self.dataset_dir):
-            file_path = os.path.join(self.dataset_dir, file)
-            video_files = os.listdir(file_path)
+        label_video_matrix = []
+        label_index_name = []
+        for txt_name in sorted(os.listdir(self.splits_dir)):
+            label_name = '_'.join(txt_name.split("_")[:-2])
+            if not os.path.exists(os.path.join(train_dir, label_name)):
+                os.mkdir(os.path.join(train_dir, label_name))
+                os.mkdir(os.path.join(val_dir, label_name))
+                os.mkdir(os.path.join(test_dir, label_name))
+                label_video_matrix.append([])
+                label_index_name.append(label_name)
 
+            f = open(os.path.join(self.splits_dir, txt_name), "r")
+            for avi_name in f.readlines():
+                video_name = avi_name.split('.')[0]
+                label_video_matrix[-1].append(video_name)
+
+        for label_index in range(len(label_video_matrix)):
             train_and_valid, test = train_test_split(
-                video_files, test_size=0.2, random_state=42
+                label_video_matrix[label_index], test_size=0.2, random_state=42
             )
             train, val = train_test_split(
                 train_and_valid, test_size=0.2, random_state=42
@@ -142,34 +166,24 @@ class RGBDataset(Dataset):
                     test, test_size=drop_percentage, random_state=42
                 )
 
-            train_dir = os.path.join(self.output_dir, "train")
-            val_dir = os.path.join(self.output_dir, "val")
-            test_dir = os.path.join(self.output_dir, "test")
-
-            if not os.path.exists(train_dir):
-                os.mkdir(train_dir)
-            if not os.path.exists(val_dir):
-                os.mkdir(val_dir)
-            if not os.path.exists(test_dir):
-                os.mkdir(test_dir)
-
+            label_name = label_index_name[label_index]
             for video in train:
-                dir_name = os.path.join(train_dir, file)
+                dir_name = os.path.join(train_dir, label_name, video)
                 if not os.path.exists(dir_name):
                     os.mkdir(dir_name)
-                copy(os.path.join(self.dataset_dir, file, video), dir_name)
+                copy(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in val:
-                dir_name = os.path.join(val_dir, file)
+                dir_name = os.path.join(val_dir, label_name, video)
                 if not os.path.exists(dir_name):
                     os.mkdir(dir_name)
-                copy(os.path.join(self.dataset_dir, file, video), dir_name)
+                copy(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in test:
-                dir_name = os.path.join(test_dir, file)
+                dir_name = os.path.join(test_dir, label_name, video)
                 if not os.path.exists(dir_name):
                     os.mkdir(dir_name)
-                copy(os.path.join(self.dataset_dir, file, video), dir_name)
+                copy(os.path.join(self.dataset_dir, video), dir_name)
 
         print("Preprocessing finished.")
 
@@ -276,17 +290,17 @@ class FlowDataset(Dataset):
             )
             self.preprocess()
 
-
-        self.fnames, labels = [], []
-        for txt_name in sorted(os.listdir(self.splits_dir)):
-            label_name = '_'.join(txt_name.split("_")[:-2])
-            f = open(os.path.join(self.splits_dir, txt_name), "r")
-            for avi_name in f.readlines():
+        self.fnames = []
+        data_dir = os.path.join(self.output_dir, self.split)
+        labels = os.listdir(os.path.join(data_dir, "u"))
+        for label in labels:
+            label_dir = os.path.join(data_dir, "u", label)
+            video_names = os.listdir(label_dir)
+            for video_name in video_names:
                 self.fnames.append((
-                    os.path.join(self.output_dir, self.split, "u", avi_name[:-7]),
-                    os.path.join(self.output_dir, self.split, "v", avi_name[:-7]),
+                    os.path.join(data_dir, "u", label, video_name),
+                    os.path.join(data_dir, "u", label, video_name),
                 ))
-                labels.append(label_name)
 
         assert len(labels) == len(self.fnames)
         print("Number of {} videos: {:d}".format(split, len(self.fnames)))
@@ -349,14 +363,49 @@ class FlowDataset(Dataset):
         if not os.path.exists(self.output_dir):
             os.mkdir(self.output_dir)
 
-        # Split train/val/test sets
-        for file in os.listdir(self.dataset_dir + "/u"):
-            if file.endswith(".bin"): continue
-            file_path = os.path.join(self.dataset_dir + "/u", file)
-            video_files = os.listdir(file_path)
+        train_dir = os.path.join(self.output_dir, "train")
+        val_dir = os.path.join(self.output_dir, "val")
+        test_dir = os.path.join(self.output_dir, "test")
 
+        dirs = []
+        if not os.path.exists(train_dir):
+            os.mkdir(train_dir)
+            dirs.append(os.path.join(train_dir, "u"))
+            os.mkdir(dirs[-1])
+            dirs.append(os.path.join(train_dir, "v"))
+            os.mkdir(dirs[-1])
+        if not os.path.exists(val_dir):
+            os.mkdir(val_dir)
+            dirs.append(os.path.join(val_dir, "u"))
+            os.mkdir(dirs[-1])
+            dirs.append(os.path.join(val_dir, "v"))
+            os.mkdir(dirs[-1])
+        if not os.path.exists(test_dir):
+            os.mkdir(test_dir)
+            dirs.append(os.path.join(test_dir, "u"))
+            os.mkdir(dirs[-1])
+            dirs.append(os.path.join(test_dir, "v"))
+            os.mkdir(dirs[-1])
+
+        # Split train/val/test sets
+        label_video_matrix = []
+        label_index_name = []
+        for txt_name in sorted(os.listdir(self.splits_dir)):
+            label_name = '_'.join(txt_name.split("_")[:-2])
+            if not os.path.exists(os.path.join(dirs[0], label_name)):
+                for dir in dirs:
+                    os.mkdir(os.path.join(dir, label_name))
+                label_video_matrix.append([])
+                label_index_name.append(label_name)
+
+            f = open(os.path.join(self.splits_dir, txt_name), "r")
+            for avi_name in f.readlines():
+                video_name = avi_name.split('.')[0]
+                label_video_matrix[-1].append(video_name)
+
+        for label_index in range(len(label_video_matrix)):
             train_and_valid, test = train_test_split(
-                video_files, test_size=0.2, random_state=42
+                label_video_matrix[label_index], test_size=0.2, random_state=42
             )
             train, val = train_test_split(
                 train_and_valid, test_size=0.2, random_state=42
@@ -374,41 +423,25 @@ class FlowDataset(Dataset):
                     test, test_size=drop_percentage, random_state=42
                 )
 
-            train_dir = os.path.join(self.output_dir, "train")
-            val_dir = os.path.join(self.output_dir, "val")
-            test_dir = os.path.join(self.output_dir, "test")
-
-            if not os.path.exists(train_dir):
-                os.mkdir(train_dir)
-                os.mkdir(os.path.join(train_dir, "u"))
-                os.mkdir(os.path.join(train_dir, "v"))
-            if not os.path.exists(val_dir):
-                os.mkdir(val_dir)
-                os.mkdir(os.path.join(val_dir, "u"))
-                os.mkdir(os.path.join(val_dir, "v"))
-            if not os.path.exists(test_dir):
-                os.mkdir(test_dir)
-                os.mkdir(os.path.join(test_dir, "u"))
-                os.mkdir(os.path.join(test_dir, "v"))
-
+            label_name = label_index_name[label_index]
             for uv in ["u", "v"]:
                 for video in train:
-                    dir_name = os.path.join(train_dir, uv, file)
+                    dir_name = os.path.join(train_dir, uv, label_name, video)
                     if not os.path.exists(dir_name):
                         os.mkdir(dir_name)
-                    copy(os.path.join(self.dataset_dir, uv, file, video), dir_name)
+                    copy(os.path.join(self.dataset_dir, uv, video), dir_name)
 
                 for video in val:
-                    dir_name = os.path.join(val_dir, uv, file)
+                    dir_name = os.path.join(val_dir, uv, label_name, video)
                     if not os.path.exists(dir_name):
                         os.mkdir(dir_name)
-                    copy(os.path.join(self.dataset_dir, uv, file, video), dir_name)
+                    copy(os.path.join(self.dataset_dir, uv, video), dir_name)
 
                 for video in test:
-                    dir_name = os.path.join(test_dir, uv, file)
+                    dir_name = os.path.join(test_dir, uv, label_name, video)
                     if not os.path.exists(dir_name):
                         os.mkdir(dir_name)
-                    copy(os.path.join(self.dataset_dir, uv, file, video), dir_name)
+                    copy(os.path.join(self.dataset_dir, uv, video), dir_name)
 
         print("Preprocessing finished.")
 
