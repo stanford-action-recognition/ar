@@ -1,11 +1,5 @@
 # Action Recognition
 
-## Introduction
-
-This repo contains several models for video action recognition,
-including C3D, R2Plus1D, R3D, inplemented using PyTorch (0.4.0).
-Currently, we train these models on UCF101 and HMDB51 datasets.
-
 ## Setup
 
 The code was tested with Anaconda and Python 3.5. After installing the Anaconda environment:
