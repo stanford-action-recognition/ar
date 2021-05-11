@@ -60,9 +60,8 @@ def get_args():
     parser.add_argument(
         "--c3d_dropout_rate",
         type=float,
+        default=0.2,
         help="C3D dropout rate",
-        nargs="?",
-        const="",
     )
 
     parser.add_argument(
