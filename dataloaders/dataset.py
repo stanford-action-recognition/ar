@@ -171,20 +171,20 @@ class RGBDataset(Dataset):
             for video in train:
                 dir_name = os.path.join(train_dir, label_name, video)
                 if not os.path.exists(dir_name):
-                    os.mkdir(dir_name)
-                copytree(os.path.join(self.dataset_dir, video), dir_name)
+                    # os.mkdir(dir_name)
+                    copytree(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in val:
                 dir_name = os.path.join(val_dir, label_name, video)
                 if not os.path.exists(dir_name):
-                    os.mkdir(dir_name)
-                copytree(os.path.join(self.dataset_dir, video), dir_name)
+                    # os.mkdir(dir_name)
+                    copytree(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in test:
                 dir_name = os.path.join(test_dir, label_name, video)
                 if not os.path.exists(dir_name):
-                    os.mkdir(dir_name)
-                copytree(os.path.join(self.dataset_dir, video), dir_name)
+                    # os.mkdir(dir_name)
+                    copytree(os.path.join(self.dataset_dir, video), dir_name)
 
         print("Preprocessing finished.")
 
