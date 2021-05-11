@@ -299,7 +299,7 @@ class FlowDataset(Dataset):
             for video_name in video_names:
                 self.fnames.append((
                     os.path.join(data_dir, "u", label, video_name),
-                    os.path.join(data_dir, "u", label, video_name),
+                    # os.path.join(data_dir, "u", label, video_name),
                 ))
                 labels.append(label)
 
