@@ -153,7 +153,7 @@ def train_model():
 
                 for inputs, labels in tqdm(trainval_loaders[phase]):
                     # move inputs and labels to the device the training is taking place on
-                    inputs = Variable(inputs, requires_grad=True).to(device)
+                    inputs = Variable(inputs.floats(), requires_grad=True).to(device)
                     labels = Variable(labels).to(device)
                     optimizer.zero_grad()
 
