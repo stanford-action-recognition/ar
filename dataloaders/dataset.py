@@ -62,10 +62,7 @@ class RGBDataset(Dataset):
             label_dir = os.path.join(data_dir, label)
             video_names = os.listdir(label_dir)
             for video_name in video_names:
-                self.fnames.append((
-                    os.path.join(label_dir, video_name),
-                    os.path.join(label_dir, video_name),
-                ))
+                self.fnames.append(os.path.join(label_dir, video_name))
                 labels.append(label)
 
         assert len(labels) == len(self.fnames)
@@ -170,20 +167,14 @@ class RGBDataset(Dataset):
             label_name = label_index_name[label_index]
             for video in train:
                 dir_name = os.path.join(train_dir, label_name, video)
-                if not os.path.exists(dir_name):
-                    os.mkdir(dir_name)
                 copytree(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in val:
                 dir_name = os.path.join(val_dir, label_name, video)
-                if not os.path.exists(dir_name):
-                    os.mkdir(dir_name)
                 copytree(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in test:
                 dir_name = os.path.join(test_dir, label_name, video)
-                if not os.path.exists(dir_name):
-                    os.mkdir(dir_name)
                 copytree(os.path.join(self.dataset_dir, video), dir_name)
 
         print("Preprocessing finished.")
@@ -299,7 +290,7 @@ class FlowDataset(Dataset):
             for video_name in video_names:
                 self.fnames.append((
                     os.path.join(data_dir, "u", label, video_name),
-                    os.path.join(data_dir, "u", label, video_name),
+                    os.path.join(data_dir, "v", label, video_name),
                 ))
                 labels.append(label)
 
