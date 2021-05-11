@@ -10,11 +10,12 @@ from args import get_args
 from dataloaders.dataset import FlowDataset
 from network import C3D_model, R2Plus1D_model, R3D_model
 
-HMDB_RGB_DATASET_DIR = "E:/Stanford/CS 231N/Project/ar_data/jpegs_256"
-HMDB_FLOW_DATASET_DIR = "E:/Stanford/CS 231N/Project/ar_data/tvl1_flow"
-HMDB_SPLITS_DIR = "E:/Stanford/CS 231N/Project/ar_data/hmdb51_splits"
-OUTPUT_DIR = "E:/Stanford/CS 231N/Project/ar/dataloaders/output"
+HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
+HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
+HMDB_SPLITS_DIR = "./data/hmdb51_splits"
+OUTPUT_DIR = "./data/flow_output"
 IN_CHANNEL = 10
+
 
 def train_model():
     args = get_args()
@@ -29,9 +30,6 @@ def train_model():
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("config", config)
         print("device", device)
-
-        dataset_dir = ''
-        splits_dir = ''
 
         if config.dataset == "HMDB51":
             num_classes = 51
