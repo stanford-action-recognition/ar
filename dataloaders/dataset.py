@@ -146,7 +146,7 @@ class RGBDataset(Dataset):
 
         for label_index in range(len(label_video_matrix)):
             train_and_valid, test = train_test_split(
-                label_video_matrix[label_index], test_size=0.2, random_state=42
+                list(set(label_video_matrix[label_index])), test_size=0.2, random_state=42
             )
             train, val = train_test_split(
                 train_and_valid, test_size=0.2, random_state=42
