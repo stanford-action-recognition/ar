@@ -5,7 +5,7 @@ import torch
 import cv2
 import numpy as np
 from torch.utils.data import Dataset
-from shutil import copy
+from shutil import copytree
 
 
 class RGBDataset(Dataset):
@@ -172,19 +172,19 @@ class RGBDataset(Dataset):
                 dir_name = os.path.join(train_dir, label_name, video)
                 if not os.path.exists(dir_name):
                     os.mkdir(dir_name)
-                copy(os.path.join(self.dataset_dir, video), dir_name)
+                copytree(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in val:
                 dir_name = os.path.join(val_dir, label_name, video)
                 if not os.path.exists(dir_name):
                     os.mkdir(dir_name)
-                copy(os.path.join(self.dataset_dir, video), dir_name)
+                copytree(os.path.join(self.dataset_dir, video), dir_name)
 
             for video in test:
                 dir_name = os.path.join(test_dir, label_name, video)
                 if not os.path.exists(dir_name):
                     os.mkdir(dir_name)
-                copy(os.path.join(self.dataset_dir, video), dir_name)
+                copytree(os.path.join(self.dataset_dir, video), dir_name)
 
         print("Preprocessing finished.")
 
@@ -406,7 +406,7 @@ class FlowDataset(Dataset):
 
         for label_index in range(len(label_video_matrix)):
             train_and_valid, test = train_test_split(
-                label_video_matrix[label_index], test_size=0.2, random_state=42
+                list(set(label_video_matrix[label_index])), test_size=0.2, random_state=42
             )
             train, val = train_test_split(
                 train_and_valid, test_size=0.2, random_state=42
@@ -428,21 +428,15 @@ class FlowDataset(Dataset):
             for uv in ["u", "v"]:
                 for video in train:
                     dir_name = os.path.join(train_dir, uv, label_name, video)
-                    if not os.path.exists(dir_name):
-                        os.mkdir(dir_name)
-                    copy(os.path.join(self.dataset_dir, uv, video), dir_name)
+                    copytree(os.path.join(self.dataset_dir, uv, video), dir_name)
 
                 for video in val:
                     dir_name = os.path.join(val_dir, uv, label_name, video)
-                    if not os.path.exists(dir_name):
-                        os.mkdir(dir_name)
-                    copy(os.path.join(self.dataset_dir, uv, video), dir_name)
+                    copytree(os.path.join(self.dataset_dir, uv, video), dir_name)
 
                 for video in test:
                     dir_name = os.path.join(test_dir, uv, label_name, video)
-                    if not os.path.exists(dir_name):
-                        os.mkdir(dir_name)
-                    copy(os.path.join(self.dataset_dir, uv, video), dir_name)
+                    copytree(os.path.join(self.dataset_dir, uv, video), dir_name)
 
         print("Preprocessing finished.")
 
