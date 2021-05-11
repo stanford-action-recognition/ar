@@ -10,10 +10,11 @@ from args import get_args
 from dataloaders.dataset import RGBDataset
 from network import C3D_model, R2Plus1D_model, R3D_model
 
-HMDB_RGB_DATASET_DIR = "E:/Stanford/CS 231N/Project/ar_data/jpegs_256"
-HMDB_FLOW_DATASET_DIR = "E:/Stanford/CS 231N/Project/ar_data/tvl1_flow"
-HMDB_SPLITS_DIR = "E:/Stanford/CS 231N/Project/ar_data/hmdb51_splits"
-OUTPUT_DIR = "E:/Stanford/CS 231N/Project/ar/dataloaders/output"
+HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
+HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
+HMDB_SPLITS_DIR = "./data/hmdb51_splits"
+OUTPUT_DIR = "./data/rgb_output"
+
 
 def train_model():
     args = get_args()
@@ -29,9 +30,6 @@ def train_model():
         print("config", config)
         print("device", device)
 
-        dataset_dir = ''
-        splits_dir = ''
-
         if config.dataset == "HMDB51":
             num_classes = 51
             dataset_dir = HMDB_RGB_DATASET_DIR
@@ -43,7 +41,7 @@ def train_model():
         if config.model == "C3D":
             model = C3D_model.C3D(
                 num_classes=num_classes,
-                dropout_rate=config.dropout_rate,
+                c3d_dropout_rate=config.c3d_dropout_rate,
                 in_channel=3,
                 pretrained=False,
             )
