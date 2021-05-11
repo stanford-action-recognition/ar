@@ -65,4 +65,11 @@ def get_args():
         const="",
     )
 
+    parser.add_argument(
+        "--c3d_in_channel",
+        type=int,
+        default=15,
+        help="C3D in channel",
+    )
+
     return parser.parse_args()

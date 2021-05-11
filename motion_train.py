@@ -14,7 +14,6 @@ HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 HMDB_SPLITS_DIR = "./data/hmdb51_splits"
 OUTPUT_DIR = "./data/flow_output"
-IN_CHANNEL = 10
 
 
 def train_model():
@@ -43,7 +42,7 @@ def train_model():
             model = C3D_model.C3D(
                 num_classes=num_classes,
                 dropout_rate=config.dropout_rate,
-                in_channel=IN_CHANNEL * 2,
+                in_channel=config.c3d_in_channel * 2,
                 pretrained=False,
             )
             train_params = [
@@ -97,7 +96,7 @@ def train_model():
                 dataset_dir=dataset_dir,
                 splits_dir=splits_dir,
                 output_dir=OUTPUT_DIR,
-                in_channel=IN_CHANNEL,
+                in_channel=config.c3d_in_channel,
                 dataset_percentage=config.dataset_percentage,
                 split="train",
                 clip_len=16,
@@ -111,7 +110,7 @@ def train_model():
                 dataset_dir=dataset_dir,
                 splits_dir=splits_dir,
                 output_dir=OUTPUT_DIR,
-                in_channel=IN_CHANNEL,
+                in_channel=config.c3d_in_channel,
                 dataset_percentage=config.dataset_percentage,
                 split="val",
                 clip_len=16,
@@ -124,7 +123,7 @@ def train_model():
                 dataset_dir=dataset_dir,
                 splits_dir=splits_dir,
                 output_dir=OUTPUT_DIR,
-                in_channel=IN_CHANNEL,
+                in_channel=config.c3d_in_channel,
                 dataset_percentage=config.dataset_percentage,
                 split="test",
                 clip_len=16,
