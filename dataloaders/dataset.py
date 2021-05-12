@@ -454,12 +454,11 @@ class FlowDataset(Dataset):
     def load_frames(self, file_dir):
         frames = sorted([os.path.join(file_dir, img) for img in os.listdir(file_dir)])
         frame_count = len(frames)
-        buffer = np.empty(
-            (frame_count, self.resize_height, self.resize_width, 3), np.dtype("float32")
-        )
+        buffer = []
         for i, frame_name in enumerate(frames):
             frame = np.array(cv2.imread(frame_name)).astype(np.float64)
-            buffer[i] = frame
+            buffer.append(frame)
+        buffer = np.array(buffer)
 
         return buffer
 
