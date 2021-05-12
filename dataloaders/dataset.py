@@ -329,9 +329,9 @@ class FlowDataset(Dataset):
 
     def __getitem__(self, index):
         # Loading and preprocessing.
-        max_frame_size = max([len(os.listdir(self.fnames[min(index+i, len(self.fnames) - 1)][0])) for i in range(self.in_channel)])
+        min_frame_size = min([len(os.listdir(self.fnames[min(index+i, len(self.fnames) - 1)][0])) for i in range(self.in_channel)])
         buffer = np.empty(
-            (self.in_channel * 2, max_frame_size, self.resize_width, self.resize_height),
+            (self.in_channel * 2, min_frame_size, self.resize_height, self.resize_width),
             np.dtype("float32")
         )
         for i in range(self.in_channel):
@@ -339,8 +339,8 @@ class FlowDataset(Dataset):
             # Since each pixel of grayscale images have the same value across R, G, B channels, only keep one of them.
             u_buffer = np.squeeze(self.load_frames(self.fnames[min(index+i, len(self.fnames) - 1)][0])[:, :, :, 0])
             v_buffer = np.squeeze(self.load_frames(self.fnames[min(index+i, len(self.fnames) - 1)][1])[:, :, :, 0])
-            buffer[i * 2] = u_buffer
-            buffer[i * 2 + 1] = v_buffer
+            buffer[i * 2] = u_buffer[:min_frame_size, :, :]
+            buffer[i * 2 + 1] = v_buffer[:min_frame_size, :, :]
 
         # [C x num_frame x H x W] --> [num_frame x H x W x C], where C is frame window size.
         buffer = np.array(buffer).transpose((1, 2, 3, 0))
@@ -471,10 +471,6 @@ class FlowDataset(Dataset):
         return buffer
 
     def normalize(self, buffer):
-        for i, frame in enumerate(buffer):
-            frame -= np.array([[[90.0, 98.0, 102.0]]])
-            buffer[i] = frame
-
         return buffer
 
     def to_tensor(self, buffer):
