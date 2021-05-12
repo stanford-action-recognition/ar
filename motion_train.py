@@ -12,8 +12,8 @@ from network import C3D_model, R2Plus1D_model, R3D_model
 
 HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 
-HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
-HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
+HMDB_RGB_DATASET_DIR = "/home/Dell/jpegs_256"
+HMDB_FLOW_DATASET_DIR = "/home/Dell/tvl1_flow"
 OUTPUT_DIR = "./data/flow_output"
 
 
