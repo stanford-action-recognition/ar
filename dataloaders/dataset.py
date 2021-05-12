@@ -331,7 +331,7 @@ class FlowDataset(Dataset):
         # Loading and preprocessing.
         max_frame_size = max([len(os.listdir(self.fnames[min(index+i, len(self.fnames) - 1)][0])) for i in range(self.in_channel)])
         buffer = np.empty(
-            (self.in_channel * 2, max_frame_size, self.resize_width * 2, self.in_channel * 2),
+            (self.in_channel * 2, max_frame_size, self.resize_width, self.resize_height),
             np.dtype("float32")
         )
         for i in range(self.in_channel):
