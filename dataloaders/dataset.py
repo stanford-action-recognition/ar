@@ -168,16 +168,27 @@ class RGBDataset(Dataset):
             for video in train:
                 dir_name = os.path.join(train_dir, label_name, video)
                 copytree(os.path.join(self.dataset_dir, video), dir_name)
+                self.process_frames_under_video_dir(dir_name)
 
             for video in val:
                 dir_name = os.path.join(val_dir, label_name, video)
                 copytree(os.path.join(self.dataset_dir, video), dir_name)
+                self.process_frames_under_video_dir(dir_name)
 
             for video in test:
                 dir_name = os.path.join(test_dir, label_name, video)
                 copytree(os.path.join(self.dataset_dir, video), dir_name)
+                self.process_frames_under_video_dir(dir_name)
 
         print("Preprocessing finished.")
+
+    def process_frames_under_video_dir(self, video_dir):
+        for img_name in os.listdir(video_dir):
+            img_path = os.path.join(video_dir, img_name)
+            img = cv2.imread(img_path)
+            resized_img = cv2.resize(
+                img, (self.resize_width, self.resize_height), interpolation=cv2.INTER_AREA)
+            assert cv2.imwrite(img_path, resized_img)
 
     def randomflip(self, buffer):
         """Horizontally flip the given image and ground truth randomly with a probability of 0.5."""
@@ -427,16 +438,27 @@ class FlowDataset(Dataset):
                 for video in train:
                     dir_name = os.path.join(train_dir, uv, label_name, video)
                     copytree(os.path.join(self.dataset_dir, uv, video), dir_name)
+                    self.process_frames_under_video_dir(dir_name)
 
                 for video in val:
                     dir_name = os.path.join(val_dir, uv, label_name, video)
                     copytree(os.path.join(self.dataset_dir, uv, video), dir_name)
+                    self.process_frames_under_video_dir(dir_name)
 
                 for video in test:
                     dir_name = os.path.join(test_dir, uv, label_name, video)
                     copytree(os.path.join(self.dataset_dir, uv, video), dir_name)
+                    self.process_frames_under_video_dir(dir_name)
 
         print("Preprocessing finished.")
+
+    def process_frames_under_video_dir(self, video_dir):
+        for img_name in os.listdir(video_dir):
+            img_path = os.path.join(video_dir, img_name)
+            img = cv2.imread(img_path)
+            resized_img = cv2.resize(
+                img, (self.resize_width, self.resize_height), interpolation=cv2.INTER_AREA)
+            assert cv2.imwrite(img_path, resized_img)
 
     def randomflip(self, buffer):
         """Horizontally flip the given image and ground truth randomly with a probability of 0.5."""
