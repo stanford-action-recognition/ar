@@ -38,7 +38,7 @@ class RGBDataset(Dataset):
 
         # The following three parameters are chosen as described in the paper section 4.1
         self.resize_height = 128
-        self.resize_width = 170
+        self.resize_width = 171
         self.crop_size = 112
 
         if not self.check_integrity():
@@ -214,7 +214,7 @@ class RGBDataset(Dataset):
         frames = sorted([os.path.join(file_dir, img) for img in os.listdir(file_dir)])
         frame_count = len(frames)
         buffer = np.empty(
-            (frame_count, self.resize_height * 2, self.resize_width * 2, 3),
+            (frame_count, self.resize_height, self.resize_width, 3),
             np.dtype("float32")
         )
         for i, frame_name in enumerate(frames):
@@ -277,7 +277,7 @@ class FlowDataset(Dataset):
 
         # The following three parameters are chosen as described in the paper section 4.1
         self.resize_height = 128
-        self.resize_width = 170
+        self.resize_width = 171
         self.crop_size = 112
 
         if not self.check_integrity():
@@ -484,7 +484,7 @@ class FlowDataset(Dataset):
         frames = sorted([os.path.join(file_dir, img) for img in os.listdir(file_dir)])
         frame_count = len(frames)
         buffer = np.empty(
-            (frame_count, self.resize_height * 2, self.resize_width * 2, 3),
+            (frame_count, self.resize_height, self.resize_width, 3),
             np.dtype("float32")
         )
         for i, frame_name in enumerate(frames):
