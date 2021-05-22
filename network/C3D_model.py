@@ -38,9 +38,12 @@ class C3D(nn.Module):
             kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=(0, 1, 1)
         )
 
-        self.fc6 = nn.Linear(8192, 4096)
-        self.fc7 = nn.Linear(4096, 4096)
-        self.fc8 = nn.Linear(4096, num_classes)
+        # self.fc6 = nn.Linear(8192, 4096)
+        # self.fc7 = nn.Linear(4096, 4096)
+        # self.fc8 = nn.Linear(4096, num_classes)
+        self.fc6 = nn.Linear(2048, 2048)
+        self.fc7 = nn.Linear(2048, 2048) 
+        self.fc8 = nn.Linear(2048, num_classes) 
 
         self.dropout = nn.Dropout(p=c3d_dropout_rate)
 
@@ -71,7 +74,8 @@ class C3D(nn.Module):
         x = self.relu(self.bn5(self.conv5b(x)))
         x = self.pool5(x)
 
-        x = x.view(-1, 8192)
+        # x = x.view(-1, 8192)
+        x = x.view(x.size(0), -1)
         x = self.relu(self.fc6(x))
         x = self.dropout(x)
         x = self.relu(self.fc7(x))
