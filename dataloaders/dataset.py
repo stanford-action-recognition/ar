@@ -31,15 +31,19 @@ class RGBDataset(Dataset):
         clip_len=16,
         preprocess=False,
     ):
-        self.dataset_dir, self.splits_dir, self.output_dir = dataset_dir, splits_dir, output_dir
+        self.dataset_dir, self.splits_dir, self.output_dir = (
+            dataset_dir,
+            splits_dir,
+            output_dir,
+        )
         self.dataset_percentage = dataset_percentage
         self.clip_len = clip_len
         self.split = split
 
         # The following three parameters are chosen as described in the paper section 4.1
-        self.resize_height = 64# 128
-        self.resize_width = 85# 171
-        self.crop_size = 60# 112
+        self.resize_height = 64  # 128
+        self.resize_width = 85  # 171
+        self.crop_size = 60  # 112
 
         if not self.check_integrity():
             raise RuntimeError(
@@ -131,7 +135,7 @@ class RGBDataset(Dataset):
         label_video_matrix = []
         label_index_name = []
         for txt_name in sorted(os.listdir(self.splits_dir)):
-            label_name = '_'.join(txt_name.split("_")[:-2])
+            label_name = "_".join(txt_name.split("_")[:-2])
             if not os.path.exists(os.path.join(train_dir, label_name)):
                 os.mkdir(os.path.join(train_dir, label_name))
                 os.mkdir(os.path.join(val_dir, label_name))
@@ -141,12 +145,14 @@ class RGBDataset(Dataset):
 
             f = open(os.path.join(self.splits_dir, txt_name), "r")
             for avi_name in f.readlines():
-                video_name = avi_name.split('.')[0]
+                video_name = avi_name.split(".")[0]
                 label_video_matrix[-1].append(video_name)
 
         for label_index in range(len(label_video_matrix)):
             train_and_valid, test = train_test_split(
-                list(set(label_video_matrix[label_index])), test_size=0.2, random_state=42
+                list(set(label_video_matrix[label_index])),
+                test_size=0.2,
+                random_state=42,
             )
             train, val = train_test_split(
                 train_and_valid, test_size=0.2, random_state=42
@@ -187,7 +193,10 @@ class RGBDataset(Dataset):
             img_path = os.path.join(video_dir, img_name)
             img = cv2.imread(img_path)
             resized_img = cv2.resize(
-                img, (self.resize_width, self.resize_height), interpolation=cv2.INTER_AREA)
+                img,
+                (self.resize_width, self.resize_height),
+                interpolation=cv2.INTER_AREA,
+            )
             assert cv2.imwrite(img_path, resized_img)
 
     def randomflip(self, buffer):
@@ -214,8 +223,7 @@ class RGBDataset(Dataset):
         frames = sorted([os.path.join(file_dir, img) for img in os.listdir(file_dir)])
         frame_count = len(frames)
         buffer = np.empty(
-            (frame_count, self.resize_height, self.resize_width, 3),
-            np.dtype("float32")
+            (frame_count, self.resize_height, self.resize_width, 3), np.dtype("float32")
         )
         for i, frame_name in enumerate(frames):
             frame = np.array(cv2.imread(frame_name)).astype(np.float64)
@@ -269,7 +277,11 @@ class FlowDataset(Dataset):
         clip_len=16,
         preprocess=False,
     ):
-        self.dataset_dir, self.splits_dir, self.output_dir = dataset_dir, splits_dir, output_dir
+        self.dataset_dir, self.splits_dir, self.output_dir = (
+            dataset_dir,
+            splits_dir,
+            output_dir,
+        )
         self.in_channel = in_channel
         self.dataset_percentage = dataset_percentage
         self.clip_len = clip_len
@@ -301,10 +313,12 @@ class FlowDataset(Dataset):
             label_dir = os.path.join(data_dir, "u", label)
             video_names = os.listdir(label_dir)
             for video_name in video_names:
-                self.fnames.append((
-                    os.path.join(data_dir, "u", label, video_name),
-                    os.path.join(data_dir, "v", label, video_name),
-                ))
+                self.fnames.append(
+                    (
+                        os.path.join(data_dir, "u", label, video_name),
+                        os.path.join(data_dir, "v", label, video_name),
+                    )
+                )
                 labels.append(label)
 
         assert len(labels) == len(self.fnames)
@@ -329,16 +343,34 @@ class FlowDataset(Dataset):
 
     def __getitem__(self, index):
         # Loading and preprocessing.
-        min_frame_size = min([len(os.listdir(self.fnames[min(index+i, len(self.fnames) - 1)][0])) for i in range(self.in_channel)])
+        min_frame_size = min(
+            [
+                len(os.listdir(self.fnames[min(index + i, len(self.fnames) - 1)][0]))
+                for i in range(self.in_channel)
+            ]
+        )
         buffer = np.empty(
-            (self.in_channel * 2, min_frame_size, self.resize_height, self.resize_width),
-            np.dtype("float32")
+            (
+                self.in_channel * 2,
+                min_frame_size,
+                self.resize_height,
+                self.resize_width,
+            ),
+            np.dtype("float32"),
         )
         for i in range(self.in_channel):
             # buffer format before squeeze: [num_frame x H x W x C]
             # Since each pixel of grayscale images have the same value across R, G, B channels, only keep one of them.
-            u_buffer = np.squeeze(self.load_frames(self.fnames[min(index+i, len(self.fnames) - 1)][0])[:, :, :, 0])
-            v_buffer = np.squeeze(self.load_frames(self.fnames[min(index+i, len(self.fnames) - 1)][1])[:, :, :, 0])
+            u_buffer = np.squeeze(
+                self.load_frames(self.fnames[min(index + i, len(self.fnames) - 1)][0])[
+                    :, :, :, 0
+                ]
+            )
+            v_buffer = np.squeeze(
+                self.load_frames(self.fnames[min(index + i, len(self.fnames) - 1)][1])[
+                    :, :, :, 0
+                ]
+            )
             buffer[i * 2] = u_buffer[:min_frame_size, :, :]
             buffer[i * 2 + 1] = v_buffer[:min_frame_size, :, :]
 
@@ -401,7 +433,7 @@ class FlowDataset(Dataset):
         label_video_matrix = []
         label_index_name = []
         for txt_name in sorted(os.listdir(self.splits_dir)):
-            label_name = '_'.join(txt_name.split("_")[:-2])
+            label_name = "_".join(txt_name.split("_")[:-2])
             if not os.path.exists(os.path.join(dirs[0], label_name)):
                 for dir in dirs:
                     os.mkdir(os.path.join(dir, label_name))
@@ -410,12 +442,14 @@ class FlowDataset(Dataset):
 
             f = open(os.path.join(self.splits_dir, txt_name), "r")
             for avi_name in f.readlines():
-                video_name = avi_name.split('.')[0]
+                video_name = avi_name.split(".")[0]
                 label_video_matrix[-1].append(video_name)
 
         for label_index in range(len(label_video_matrix)):
             train_and_valid, test = train_test_split(
-                list(set(label_video_matrix[label_index])), test_size=0.2, random_state=42
+                list(set(label_video_matrix[label_index])),
+                test_size=0.2,
+                random_state=42,
             )
             train, val = train_test_split(
                 train_and_valid, test_size=0.2, random_state=42
@@ -457,7 +491,10 @@ class FlowDataset(Dataset):
             img_path = os.path.join(video_dir, img_name)
             img = cv2.imread(img_path)
             resized_img = cv2.resize(
-                img, (self.resize_width, self.resize_height), interpolation=cv2.INTER_AREA)
+                img,
+                (self.resize_width, self.resize_height),
+                interpolation=cv2.INTER_AREA,
+            )
             assert cv2.imwrite(img_path, resized_img)
 
     def randomflip(self, buffer):
@@ -480,8 +517,7 @@ class FlowDataset(Dataset):
         frames = sorted([os.path.join(file_dir, img) for img in os.listdir(file_dir)])
         frame_count = len(frames)
         buffer = np.empty(
-            (frame_count, self.resize_height, self.resize_width, 3),
-            np.dtype("float32")
+            (frame_count, self.resize_height, self.resize_width, 3), np.dtype("float32")
         )
         for i, frame_name in enumerate(frames):
             frame = np.array(cv2.imread(frame_name)).astype(np.float64)
@@ -521,11 +557,16 @@ if __name__ == "__main__":
     # rgb_train_loader = DataLoader(rgb_train_data, batch_size=100, shuffle=True, num_workers=8)
 
     flow_train_data = FlowDataset(
-        dataset_dir="E:/Stanford/CS 231N/Project/ar_data/tvl1_flow",
-        splits_dir="E:/Stanford/CS 231N/Project/ar_data/hmdb51_splits",
-        output_dir="output/", split="test", clip_len=8, preprocess=True
+        dataset_dir="./data/tvl1_flow",
+        splits_dir="./fixtures/hmdb51_splits",
+        output_dir="output/",
+        split="test",
+        clip_len=8,
+        preprocess=True,
     )
-    flow_train_loader = DataLoader(flow_train_data, batch_size=100, shuffle=True, num_workers=8)
+    flow_train_loader = DataLoader(
+        flow_train_data, batch_size=100, shuffle=True, num_workers=8
+    )
 
     # for i, sample in enumerate(rgb_train_loader):
     #     inputs = sample[0]
