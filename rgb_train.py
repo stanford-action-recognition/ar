@@ -9,18 +9,15 @@ from torch.autograd import Variable
 from args import get_args
 from dataloaders.dataset import RGBDataset
 from network import C3D_model, R2Plus1D_model, R3D_model
-from network.R2Plus1D_BERT import rgb_r2plus1d_16f_34_bert10, \
-    rgb_r2plus1d_32f_34_bert10, \
-    rgb_r2plus1d_64f_34_bert10 \
+from network.R2Plus1D_BERT import (
+    rgb_r2plus1d_16f_34_bert10,
+    rgb_r2plus1d_32f_34_bert10,
+    rgb_r2plus1d_64f_34_bert10,
+)
 
-# HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
-
-# HMDB_RGB_DATASET_DIR = "/home/Dell/jpegs_256"
-# HMDB_FLOW_DATASET_DIR = "/home/Dell/tvl1_flow"
-# OUTPUT_DIR = "./data/rgb_output"
-HMDB_SPLITS_DIR = "/home/mindmaster/Projects/cs231n/ar/fixtures/hmdb51_splits"
-HMDB_RGB_DATASET_DIR = "/home/mindmaster/Projects/cs231n/ar/data/jpegs_256"
-HMDB_FLOW_DATASET_DIR = "/home/mindmaster/Projects/cs231n/ar/data/tvl1_flow"
+HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
+HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
+HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 OUTPUT_DIR = "./data/rgb_output"
 
 
@@ -74,9 +71,7 @@ def train_model():
             )
             train_params = model.parameters()
         elif config.model == "R2Plus1D_BERT":
-            model = rgb_r2plus1d_16f_34_bert10(
-                num_classes=num_classes, length=16
-            )
+            model = rgb_r2plus1d_16f_34_bert10(num_classes=num_classes, length=16)
             train_params = [
                 {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
                 {
@@ -176,14 +171,18 @@ def train_model():
                     optimizer.zero_grad()
 
                     if phase == "train":
-                        if config.model == "R2Plus1D_BERT": # R2Plus1D_BERT model have differnet output format
-                            outputs, _, _, _ = model(inputs) 
+                        if (
+                            config.model == "R2Plus1D_BERT"
+                        ):  # R2Plus1D_BERT model have differnet output format
+                            outputs, _, _, _ = model(inputs)
                         else:
                             outputs = model(inputs)
                     else:
                         with torch.no_grad():
-                            if config.model == "R2Plus1D_BERT": # R2Plus1D_BERT model have differnet output format
-                                outputs, _, _, _ = model(inputs) 
+                            if (
+                                config.model == "R2Plus1D_BERT"
+                            ):  # R2Plus1D_BERT model have differnet output format
+                                outputs, _, _, _ = model(inputs)
                             else:
                                 outputs = model(inputs)
                     probs = nn.Softmax(dim=1)(outputs)
