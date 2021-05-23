@@ -9,11 +9,18 @@ from torch.autograd import Variable
 from args import get_args
 from dataloaders.dataset import RGBDataset
 from network import C3D_model, R2Plus1D_model, R3D_model
+from network.R2Plus1D_BERT import rgb_r2plus1d_16f_34_bert10, \
+    rgb_r2plus1d_32f_34_bert10, \
+    rgb_r2plus1d_64f_34_bert10 \
 
-HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
+# HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 
-HMDB_RGB_DATASET_DIR = "/home/Dell/jpegs_256"
-HMDB_FLOW_DATASET_DIR = "/home/Dell/tvl1_flow"
+# HMDB_RGB_DATASET_DIR = "/home/Dell/jpegs_256"
+# HMDB_FLOW_DATASET_DIR = "/home/Dell/tvl1_flow"
+# OUTPUT_DIR = "./data/rgb_output"
+HMDB_SPLITS_DIR = "/home/mindmaster/Projects/cs231n/ar/fixtures/hmdb51_splits"
+HMDB_RGB_DATASET_DIR = "/home/mindmaster/Projects/cs231n/ar/data/jpegs_256"
+HMDB_FLOW_DATASET_DIR = "/home/mindmaster/Projects/cs231n/ar/data/tvl1_flow"
 OUTPUT_DIR = "./data/rgb_output"
 
 
@@ -50,24 +57,35 @@ def train_model():
                 {"params": C3D_model.get_1x_lr_params(model), "lr": config.lr},
                 {"params": C3D_model.get_10x_lr_params(model), "lr": config.lr * 10},
             ]
-        # elif config.model == "R2Plus1D":
-        #     model = R2Plus1D_model.R2Plus1DClassifier(
-        #         num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
-        #     )
-        #     train_params = [
-        #         {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
-        #         {
-        #             "params": R2Plus1D_model.get_10x_lr_params(model),
-        #             "lr": config.lr * 10,
-        #         },
-        #     ]
-        # elif config.model == "R3D":
-        #     model = R3D_model.R3DClassifier(
-        #         num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
-        #     )
-        #     train_params = model.parameters()
+        elif config.model == "R2Plus1D":
+            model = R2Plus1D_model.R2Plus1DClassifier(
+                num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
+            )
+            train_params = [
+                {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
+                {
+                    "params": R2Plus1D_model.get_10x_lr_params(model),
+                    "lr": config.lr * 10,
+                },
+            ]
+        elif config.model == "R3D":
+            model = R3D_model.R3DClassifier(
+                num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
+            )
+            train_params = model.parameters()
+        elif config.model == "R2Plus1D_BERT":
+            model = rgb_r2plus1d_16f_34_bert10(
+                num_classes=num_classes, length=16
+            )
+            train_params = [
+                {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
+                {
+                    "params": R2Plus1D_model.get_10x_lr_params(model),
+                    "lr": config.lr * 10,
+                },
+            ]
         else:
-            print("We only implemented C3D model.")
+            print("We have not implement this model.")
             raise NotImplementedError
 
         wb.watch(model)
@@ -92,6 +110,7 @@ def train_model():
         criterion.to(device)
 
         print("Training model on {} dataset...".format(config.dataset))
+        clip_len = 16
         train_dataloader = DataLoader(
             RGBDataset(
                 dataset_dir=dataset_dir,
@@ -99,7 +118,7 @@ def train_model():
                 output_dir=OUTPUT_DIR,
                 dataset_percentage=config.dataset_percentage,
                 split="train",
-                clip_len=16,
+                clip_len=clip_len,
             ),
             batch_size=config.batch_size,
             shuffle=True,
@@ -112,7 +131,7 @@ def train_model():
                 output_dir=OUTPUT_DIR,
                 dataset_percentage=config.dataset_percentage,
                 split="val",
-                clip_len=16,
+                clip_len=clip_len,
             ),
             batch_size=config.batch_size,
             num_workers=config.num_workers,
@@ -124,7 +143,7 @@ def train_model():
                 output_dir=OUTPUT_DIR,
                 dataset_percentage=config.dataset_percentage,
                 split="test",
-                clip_len=16,
+                clip_len=clip_len,
             ),
             batch_size=config.batch_size,
             num_workers=config.num_workers,
@@ -157,11 +176,16 @@ def train_model():
                     optimizer.zero_grad()
 
                     if phase == "train":
-                        outputs = model(inputs)
+                        if config.model == "R2Plus1D_BERT": # R2Plus1D_BERT model have differnet output format
+                            outputs, _, _, _ = model(inputs) 
+                        else:
+                            outputs = model(inputs)
                     else:
                         with torch.no_grad():
-                            outputs = model(inputs)
-
+                            if config.model == "R2Plus1D_BERT": # R2Plus1D_BERT model have differnet output format
+                                outputs, _, _, _ = model(inputs) 
+                            else:
+                                outputs = model(inputs)
                     probs = nn.Softmax(dim=1)(outputs)
                     preds = torch.max(probs, 1)[1]
                     loss = criterion(outputs, labels)
@@ -218,6 +242,7 @@ def train_model():
 
                     with torch.no_grad():
                         outputs = model(inputs)
+
                     probs = nn.Softmax(dim=1)(outputs)
                     preds = torch.max(probs, 1)[1]
                     loss = criterion(outputs, labels)

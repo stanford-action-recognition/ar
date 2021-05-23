@@ -19,8 +19,8 @@ def get_args():
     parser.add_argument(
         "--model",
         type=str,
-        default='R3D', #"C3D",
-        help="C3D，R2Plus1D R3D (default: C3D)",
+        default='R2Plus1D_BERT', # 'R3D', #"C3D",
+        help="C3D，R2Plus1D R3D (default: C3D), R2Plus1D_BERT",
     )
     parser.add_argument(
         "--lr", type=float, default=1e-3, help="Learning rate (default: 1e-3)"
@@ -52,7 +52,7 @@ def get_args():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=0,
+        default=8,
         help="number of workers (default: 0)",
     )
 
