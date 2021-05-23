@@ -19,7 +19,7 @@ def get_args():
     parser.add_argument(
         "--model",
         type=str,
-        default="C3D",
+        default='R3D', #"C3D",
         help="C3D，R2Plus1D R3D (default: C3D)",
     )
     parser.add_argument(
