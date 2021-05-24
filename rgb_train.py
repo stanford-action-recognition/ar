@@ -15,14 +15,15 @@ from network.R2Plus1D_BERT import (
     rgb_r2plus1d_64f_34_bert10,
 )
 
+args = get_args()
 HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
-OUTPUT_DIR = "./data/rgb_output"
+OUTPUT_DIR = f"./data/rgb_output_{str(int(min(args.dataset_percentage, 1) * 100))}"
 
 
 def train_model():
-    args = get_args()
+    # args = get_args()
 
     useTest = False  # See evolution of the test set when training
     test_interval = 20  # Run on test set every nTestInterval epochs
