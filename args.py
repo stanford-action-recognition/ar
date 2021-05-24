@@ -52,7 +52,7 @@ def get_args():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=8,
+        default=0,
         help="number of workers (default: 0)",
     )
 
