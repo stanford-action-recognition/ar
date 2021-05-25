@@ -11,6 +11,12 @@ def get_args():
         help="HMDB51, UCF101 (default: HMDB51)",
     )
     parser.add_argument(
+        "--streams",
+        type=str,
+        default="rgb,flow",
+        help="Comma separated list of streams. Available streams are rgb, flow. All streams are on HMDB51 dataset.",
+    )
+    parser.add_argument(
         "--dataset_percentage",
         type=float,
         default=1.0,
