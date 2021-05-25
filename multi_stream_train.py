@@ -201,6 +201,7 @@ class Train():
                     self.stream_fusion.train()
                     outputs = self.stream_fusion(inputs_list)
                 else:
+                    self.stream_fusion.eval()
                     with torch.no_grad():
                         outputs = self.stream_fusion(inputs_list)
 
