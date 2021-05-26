@@ -20,18 +20,20 @@ HMDB_CLASS_NUM = 51
 HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
-OUTPUT_DIR = f"./data/rgb_output_{str(int(min(args.dataset_percentage, 1) * 100))}"
+RGB_OUTPUT_DIR = "./data/rgb_output"
+FLOW_OUTPUT_DIR = "./data/flow_output"
 CLIP_LEN = 16
 
 class StreamFusion(nn.Module):
-    def __init__(self, stream_models: list, num_classes=51):
+    def __init__(self, stream_models, num_classes=51):
+        super(StreamFusion, self).__init__()
         self.stream_models = stream_models
         # Please make sure the last layer of each model is a nn.Linear :)
-        self.input_dimension = sum([stream_model.modules[-1].out_features for stream_model in stream_models])
+        self.input_dimension = sum([list(stream_model.modules())[-1].out_features for stream_model in stream_models])
         self.relu = nn.ReLU()
         self.fusion_layer = nn.Linear(in_features=self.input_dimension, out_features=num_classes, bias=True)
 
-    def forward(self, inputs_list: list):
+    def forward(self, inputs_list):
         assert len(self.stream_models) == len(inputs_list)
         outputs_list = [self.stream_models[i](inputs_list[i]) for i in range(len(inputs_list))]
         merged_output = torch.cat(outputs_list, dim=1)
@@ -133,7 +135,7 @@ class Train():
                         RGBDataset(
                             dataset_dir=HMDB_RGB_DATASET_DIR,
                             splits_dir=HMDB_SPLITS_DIR,
-                            output_dir=OUTPUT_DIR,
+                            output_dir=RGB_OUTPUT_DIR,
                             dataset_percentage=self.config.dataset_percentage,
                             split=split,
                             clip_len=CLIP_LEN,
@@ -147,7 +149,7 @@ class Train():
                         FlowDataset(
                             dataset_dir=HMDB_FLOW_DATASET_DIR,
                             splits_dir=HMDB_SPLITS_DIR,
-                            output_dir=OUTPUT_DIR,
+                            output_dir=FLOW_OUTPUT_DIR,
                             in_channel=self.config.c3d_in_channel,
                             dataset_percentage=self.config.dataset_percentage,
                             split=split,

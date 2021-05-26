@@ -7,6 +7,9 @@ import numpy as np
 from torch.utils.data import Dataset
 from shutil import copytree
 
+RESIZE_HEIGHT = 64
+RESIZE_WIDTH = 85
+CROP_SIZE = 60
 
 class RGBDataset(Dataset):
     r"""A Dataset for a folder of videos. Expects the directory structure to be
@@ -41,9 +44,9 @@ class RGBDataset(Dataset):
         self.split = split
 
         # The following three parameters are chosen as described in the paper section 4.1
-        self.resize_height = 64  # 128
-        self.resize_width = 85  # 171
-        self.crop_size = 60  # 112
+        self.resize_height = RESIZE_HEIGHT
+        self.resize_width = RESIZE_WIDTH
+        self.crop_size = CROP_SIZE
 
         if not self.check_integrity():
             raise RuntimeError(
@@ -288,9 +291,9 @@ class FlowDataset(Dataset):
         self.split = split
 
         # The following three parameters are chosen as described in the paper section 4.1
-        self.resize_height = 128
-        self.resize_width = 171
-        self.crop_size = 112
+        self.resize_height = RESIZE_HEIGHT
+        self.resize_width = RESIZE_WIDTH
+        self.crop_size = CROP_SIZE
 
         if not self.check_integrity():
             raise RuntimeError(
