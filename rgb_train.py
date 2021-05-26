@@ -57,7 +57,7 @@ def train_model():
             ]
         elif config.model == "R2Plus1D":
             model = R2Plus1D_model.R2Plus1DClassifier(
-                num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
+                num_classes=num_classes, in_channel=3, layer_sizes=(2, 2, 2, 2)
             )
             train_params = [
                 {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
@@ -68,7 +68,7 @@ def train_model():
             ]
         elif config.model == "R3D":
             model = R3D_model.R3DClassifier(
-                num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
+                num_classes=num_classes, in_channel=3, layer_sizes=(2, 2, 2, 2)
             )
             train_params = model.parameters()
         elif config.model == "R2Plus1D_BERT":
