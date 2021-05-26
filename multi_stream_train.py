@@ -25,8 +25,9 @@ FLOW_OUTPUT_DIR = "./data/flow_output"
 CLIP_LEN = 16
 
 class StreamFusion(nn.Module):
-    def __init__(self, stream_models, num_classes=51):
+    def __init__(self, stream_models, num_classes, device):
         super(StreamFusion, self).__init__()
+        self.device = device
         self.stream_models = stream_models
         # Please make sure the last layer of each model is a nn.Linear :)
         self.input_dimension = sum([list(stream_model.modules())[-1].out_features for stream_model in stream_models])
@@ -37,9 +38,9 @@ class StreamFusion(nn.Module):
         assert len(self.stream_models) == len(inputs_list)
         outputs_list = []
         for i in range(len(inputs_list)):
-            outputs = self.stream_models[i](inputs_list[i])
+            outputs = self.stream_models[i](inputs_list[i].to(self.device))
             outputs_list.append(outputs)
-        merged_output = torch.cat(outputs_list, dim=1)
+        merged_output = torch.cat(outputs_list, dim=1).to(self.device)
         fusion_output = self.fusion_layer(self.relu(merged_output))
         return fusion_output
 
@@ -78,7 +79,7 @@ class Train():
 
             for stream_config in self.stream_configs:
                 stream_config["model"].to(self.device)
-            self.stream_fusion = StreamFusion([stream_config["model"] for stream_config in self.stream_configs])
+            self.stream_fusion = StreamFusion([stream_config["model"] for stream_config in self.stream_configs], num_classes=51, device=self.device).to(self.device)
             if self.config.optimizer == "SGD":
                 self.stream_fusion_optimizer = optim.SGD(
                     stream_config["train_params"], lr=self.config.lr, momentum=0.9, weight_decay=5e-4
@@ -185,7 +186,7 @@ class Train():
                 raise NotImplementedError
 
     def train(self):
-        for epoch in range(0, self.config.epochs):
+        for epoch in tqdm.trange(0, self.config.epochs):
             # each epoch has a training and validation step
             for phase in ["train", "val"]:
                 # reset the running loss and corrects
@@ -214,6 +215,7 @@ class Train():
 
                 probs = nn.Softmax(dim=1)(outputs)
                 preds = torch.max(probs, 1)[1]
+                labels = labels.to(self.device)
                 loss = self.criterion(outputs, labels)
 
                 if phase == "train":
