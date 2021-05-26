@@ -186,77 +186,74 @@ class Train():
                 raise NotImplementedError
 
     def train(self):
-        for epoch in tqdm.trange(0, self.config.epochs):
+        for epoch in tqdm(range(0, self.config.epochs), desc='Epoch'):
             # each epoch has a training and validation step
             for phase in ["train", "val"]:
                 # reset the running loss and corrects
                 running_loss = 0.0
                 running_corrects = 0.0
 
-                inputs_list = []  # list of inputs from all streams
-                for stream_config in self.stream_configs:
-                    # set model to train() or eval() mode depending on whether it is trained
-                    # or being validated. Primarily affects layers such as BatchNorm or Dropout.
-                    if phase == "train":
+                if phase == "train":
+                    for stream_config in self.stream_configs:
                         stream_config["model"].train()
-                    else:
-                        stream_config["model"].eval()
-
-                    inputs, labels = next(stream_config["%s_dataloader_iter" % phase])
-                    inputs_list.append(inputs.float().to(self.device))
-
-                if phase == "train":
                     self.stream_fusion.train()
-                    outputs = self.stream_fusion(inputs_list)
                 else:
+                    for stream_config in self.stream_configs:
+                        stream_config["model"].eval()
                     self.stream_fusion.eval()
-                    with torch.no_grad():
-                        outputs = self.stream_fusion(inputs_list)
 
-                probs = nn.Softmax(dim=1)(outputs)
-                preds = torch.max(probs, 1)[1]
-                labels = labels.to(self.device)
-                loss = self.criterion(outputs, labels)
+                for iter in tqdm(range(self.train_val_sizes[phase]), desc='Iter'):
+                    inputs_list = []  # list of inputs from all streams
+                    for stream_config in self.stream_configs:
+                        inputs, labels = next(stream_config["%s_dataloader_iter" % phase])
+                        inputs_list.append(inputs.float().to(self.device))
+
+                    outputs = self.stream_fusion(inputs_list)
+                    probs = nn.Softmax(dim=1)(outputs)
+                    preds = torch.max(probs, 1)[1]
+                    labels = labels.to(self.device)
+                    loss = self.criterion(outputs, labels)
+
+                    if phase == "train":
+                        loss.backward()
+                        torch.nn.utils.clip_grad_norm_(
+                            self.stream_fusion.parameters(), self.config.clip_max_norm
+                        )
+                        self.stream_fusion_optimizer.step()
+
+                    running_loss += loss.item() * inputs_list[0].size(0)
+                    if iter % 1 == 0:
+                        print("Iter loss:", loss.item() * inputs.size(0))
+
+                    running_corrects += torch.sum(preds == labels.data)
+
+                epoch_loss = running_loss / self.train_val_sizes[phase]
+                epoch_acc = running_corrects.double() / self.train_val_sizes[phase]
 
                 if phase == "train":
-                    loss.backward()
-                    torch.nn.utils.clip_grad_norm_(
-                        self.stream_fusion.parameters(), self.config.clip_max_norm
+                    self.wb.log(
+                        {
+                            "epoch": epoch,
+                            "train_loss": epoch_loss,
+                            "train_acc": epoch_acc,
+                        },
+                        step=epoch,
                     )
-                    self.stream_fusion_optimizer.step()
+                else:
+                    self.wb.log(
+                        {
+                            "epoch": epoch,
+                            "val_loss": epoch_loss,
+                            "val_acc": epoch_acc,
+                        },
+                        step=epoch,
+                    )
 
-                running_loss += loss.item() * inputs.size(0)
-                print("running_loss", running_loss)
-
-                running_corrects += torch.sum(preds == labels.data)
-
-            epoch_loss = running_loss / self.train_val_sizes[phase]
-            epoch_acc = running_corrects.double() / self.train_val_sizes[phase]
-
-            if phase == "train":
-                self.wb.log(
-                    {
-                        "epoch": epoch,
-                        "train_loss": epoch_loss,
-                        "train_acc": epoch_acc,
-                    },
-                    step=epoch,
+                print(
+                    "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
+                        phase, epoch + 1, self.config.epochs, epoch_loss, epoch_acc
+                    )
                 )
-            else:
-                self.wb.log(
-                    {
-                        "epoch": epoch,
-                        "val_loss": epoch_loss,
-                        "val_acc": epoch_acc,
-                    },
-                    step=epoch,
-                )
-
-            print(
-                "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
-                    phase, epoch + 1, self.config.epochs, epoch_loss, epoch_acc
-                )
-            )
 
 if __name__ == "__main__":
     train = Train()
