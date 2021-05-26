@@ -24,16 +24,16 @@ OUTPUT_DIR = f"./data/rgb_output_{str(int(min(args.dataset_percentage, 1) * 100)
 CLIP_LEN = 16
 
 class StreamFusion(nn.Module):
-    def __init__(self, stream_models: list[nn.Module], num_classes=51):
+    def __init__(self, stream_models: list, num_classes=51):
         self.stream_models = stream_models
         # Please make sure the last layer of each model is a nn.Linear :)
         self.input_dimension = sum([stream_model.modules[-1].out_features for stream_model in stream_models])
         self.relu = nn.ReLU()
         self.fusion_layer = nn.Linear(in_features=self.input_dimension, out_features=num_classes, bias=True)
 
-    def forward(self, inputs: list):
-        assert len(self.stream_models) == len(inputs)
-        outputs_list = [self.stream_models[i](inputs[i]) for i in range(len(inputs))]
+    def forward(self, inputs_list: list):
+        assert len(self.stream_models) == len(inputs_list)
+        outputs_list = [self.stream_models[i](inputs_list[i]) for i in range(len(inputs_list))]
         merged_output = torch.cat(outputs_list, dim=1)
         fusion_output = self.fusion_layer(self.relu(merged_output))
         return fusion_output
