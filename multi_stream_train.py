@@ -35,7 +35,10 @@ class StreamFusion(nn.Module):
 
     def forward(self, inputs_list):
         assert len(self.stream_models) == len(inputs_list)
-        outputs_list = [self.stream_models[i](inputs_list[i]) for i in range(len(inputs_list))]
+        outputs_list = []
+        for i in range(len(inputs_list)):
+            outputs = self.stream_models[i](inputs_list[i])
+            outputs_list.append(outputs)
         merged_output = torch.cat(outputs_list, dim=1)
         fusion_output = self.fusion_layer(self.relu(merged_output))
         return fusion_output
@@ -90,7 +93,7 @@ class Train():
                 stream_config["model"] = C3D_model.C3D(
                     num_classes=HMDB_CLASS_NUM,
                     c3d_dropout_rate=self.config.c3d_dropout_rate,
-                    in_channel=3,
+                    in_channel=self.config.c3d_in_channel * 2 if stream_config["dataset_name"] == "flow" else 3,
                     pretrained=False,
                 )
                 stream_config["train_params"] = [
@@ -197,7 +200,7 @@ class Train():
                         stream_config["model"].eval()
 
                     inputs, labels = next(stream_config["%s_dataloader_iter" % phase])
-                    inputs_list.append(inputs)
+                    inputs_list.append(inputs.float().to(self.device))
 
                 if phase == "train":
                     self.stream_fusion.train()
