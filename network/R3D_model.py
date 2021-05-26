@@ -181,7 +181,7 @@ class R3DNet(nn.Module):
         )
 
         # global average pooling of the output
-        self.pool = nn.AdaptiveAvgPool3d(1)
+        self.pool = nn.AdaptiveAvgPool3d(1) # Transformer
 
     def forward(self, x):
         x = self.conv1(x)

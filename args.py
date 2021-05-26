@@ -11,6 +11,12 @@ def get_args():
         help="HMDB51, UCF101 (default: HMDB51)",
     )
     parser.add_argument(
+        "--streams",
+        type=str,
+        default="rgb,flow",
+        help="Comma separated list of streams. Available streams are rgb, flow. All streams are on HMDB51 dataset.",
+    )
+    parser.add_argument(
         "--dataset_percentage",
         type=float,
         default=1.0,
@@ -19,8 +25,8 @@ def get_args():
     parser.add_argument(
         "--model",
         type=str,
-        default="C3D",
-        help="C3D，R2Plus1D R3D (default: C3D)",
+        default="R3D",
+        help="C3D, R2Plus1D, R2Plus1D_BERT, R3D (default: R3D)",
     )
     parser.add_argument(
         "--lr", type=float, default=1e-3, help="Learning rate (default: 1e-3)"
@@ -34,7 +40,7 @@ def get_args():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=1000,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -52,17 +58,23 @@ def get_args():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=8,
-        help="number of workers (default: 8)",
+        default=0,
+        help="number of workers (default: 0)",
     )
 
     # C3D only
     parser.add_argument(
         "--c3d_dropout_rate",
         type=float,
+        default=0.2,
         help="C3D dropout rate",
-        nargs="?",
-        const="",
+    )
+
+    parser.add_argument(
+        "--c3d_in_channel",
+        type=int,
+        default=15,
+        help="C3D in channel",
     )
 
     return parser.parse_args()

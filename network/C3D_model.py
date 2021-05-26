@@ -8,10 +8,12 @@ class C3D(nn.Module):
     The C3D network.
     """
 
-    def __init__(self, num_classes, c3d_dropout_rate=0.2, pretrained=False):
+    def __init__(
+        self, num_classes, c3d_dropout_rate=0.2, in_channel=3, pretrained=False
+    ):
         super(C3D, self).__init__()
 
-        self.conv1 = nn.Conv3d(3, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1))
+        self.conv1 = nn.Conv3d(in_channel, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1))
         self.bn1 = nn.BatchNorm3d(64)
         self.pool1 = nn.MaxPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
 
@@ -36,9 +38,12 @@ class C3D(nn.Module):
             kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=(0, 1, 1)
         )
 
-        self.fc6 = nn.Linear(8192, 4096)
-        self.fc7 = nn.Linear(4096, 4096)
-        self.fc8 = nn.Linear(4096, num_classes)
+        # self.fc6 = nn.Linear(8192, 4096)
+        # self.fc7 = nn.Linear(4096, 4096)
+        # self.fc8 = nn.Linear(4096, num_classes)
+        self.fc6 = nn.Linear(2048, 2048)
+        self.fc7 = nn.Linear(2048, 2048) 
+        self.fc8 = nn.Linear(2048, num_classes) 
 
         self.dropout = nn.Dropout(p=c3d_dropout_rate)
 
@@ -69,7 +74,8 @@ class C3D(nn.Module):
         x = self.relu(self.bn5(self.conv5b(x)))
         x = self.pool5(x)
 
-        x = x.view(-1, 8192)
+        # x = x.view(-1, 8192)
+        x = x.view(x.size(0), -1)
         x = self.relu(self.fc6(x))
         x = self.dropout(x)
         x = self.relu(self.fc7(x))
@@ -168,7 +174,7 @@ def get_10x_lr_params(model):
 
 if __name__ == "__main__":
     inputs = torch.rand(1, 3, 16, 112, 112)
-    net = C3D(num_classes=55, pretrained=False)
+    net = C3D(num_classes=55, in_channel=3, pretrained=False)
 
     outputs = net.forward(inputs)
     print(outputs.size())

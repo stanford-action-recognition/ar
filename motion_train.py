@@ -7,8 +7,14 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 
 from args import get_args
-from dataloaders.dataset import VideoDataset
+from dataloaders.dataset import FlowDataset
 from network import C3D_model, R2Plus1D_model, R3D_model
+
+HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
+
+HMDB_RGB_DATASET_DIR = "/home/Dell/jpegs_256"
+HMDB_FLOW_DATASET_DIR = "/home/Dell/tvl1_flow"
+OUTPUT_DIR = "./data/flow_output"
 
 
 def train_model():
@@ -27,8 +33,8 @@ def train_model():
 
         if config.dataset == "HMDB51":
             num_classes = 51
-        elif config.dataset == "UCF101":
-            num_classes = 101
+            dataset_dir = HMDB_FLOW_DATASET_DIR
+            splits_dir = HMDB_SPLITS_DIR
         else:
             print("We only implemented hmdb and ucf datasets.")
             raise NotImplementedError
@@ -37,30 +43,31 @@ def train_model():
             model = C3D_model.C3D(
                 num_classes=num_classes,
                 c3d_dropout_rate=config.c3d_dropout_rate,
+                in_channel=config.c3d_in_channel * 2,
                 pretrained=False,
             )
             train_params = [
                 {"params": C3D_model.get_1x_lr_params(model), "lr": config.lr},
                 {"params": C3D_model.get_10x_lr_params(model), "lr": config.lr * 10},
             ]
-        elif config.model == "R2Plus1D":
-            model = R2Plus1D_model.R2Plus1DClassifier(
-                num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
-            )
-            train_params = [
-                {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
-                {
-                    "params": R2Plus1D_model.get_10x_lr_params(model),
-                    "lr": config.lr * 10,
-                },
-            ]
-        elif config.model == "R3D":
-            model = R3D_model.R3DClassifier(
-                num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
-            )
-            train_params = model.parameters()
+        # elif config.model == "R2Plus1D":
+        #     model = R2Plus1D_model.R2Plus1DClassifier(
+        #         num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
+        #     )
+        #     train_params = [
+        #         {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
+        #         {
+        #             "params": R2Plus1D_model.get_10x_lr_params(model),
+        #             "lr": config.lr * 10,
+        #         },
+        #     ]
+        # elif config.model == "R3D":
+        #     model = R3D_model.R3DClassifier(
+        #         num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
+        #     )
+        #     train_params = model.parameters()
         else:
-            print("We only implemented C3D and R2Plus1D models.")
+            print("We only implemented C3D model.")
             raise NotImplementedError
 
         wb.watch(model)
@@ -86,8 +93,11 @@ def train_model():
 
         print("Training model on {} dataset...".format(config.dataset))
         train_dataloader = DataLoader(
-            VideoDataset(
-                dataset=config.dataset,
+            FlowDataset(
+                dataset_dir=dataset_dir,
+                splits_dir=splits_dir,
+                output_dir=OUTPUT_DIR,
+                in_channel=config.c3d_in_channel,
                 dataset_percentage=config.dataset_percentage,
                 split="train",
                 clip_len=16,
@@ -97,8 +107,11 @@ def train_model():
             num_workers=config.num_workers,
         )
         val_dataloader = DataLoader(
-            VideoDataset(
-                dataset=config.dataset,
+            FlowDataset(
+                dataset_dir=dataset_dir,
+                splits_dir=splits_dir,
+                output_dir=OUTPUT_DIR,
+                in_channel=config.c3d_in_channel,
                 dataset_percentage=config.dataset_percentage,
                 split="val",
                 clip_len=16,
@@ -107,8 +120,11 @@ def train_model():
             num_workers=config.num_workers,
         )
         test_dataloader = DataLoader(
-            VideoDataset(
-                dataset=config.dataset,
+            FlowDataset(
+                dataset_dir=dataset_dir,
+                splits_dir=splits_dir,
+                output_dir=OUTPUT_DIR,
+                in_channel=config.c3d_in_channel,
                 dataset_percentage=config.dataset_percentage,
                 split="test",
                 clip_len=16,
@@ -139,8 +155,8 @@ def train_model():
 
                 for inputs, labels in tqdm(trainval_loaders[phase]):
                     # move inputs and labels to the device the training is taking place on
-                    inputs = Variable(inputs, requires_grad=True).to(device)
-                    labels = Variable(labels).to(device)
+                    inputs = Variable(inputs.float(), requires_grad=True).to(device)
+                    labels = Variable(labels.long()).to(device)
                     optimizer.zero_grad()
 
                     if phase == "train":
