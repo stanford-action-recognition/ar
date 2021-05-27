@@ -51,47 +51,44 @@ class Train():
         self.stream_configs = []
         self.criterion = nn.CrossEntropyLoss()
 
-        with wandb.init(
-                project="ar", entity="stanford-action-recognition", config=args
-        ) as wb:
-            self.wb = wb
-            self.config = wb.config
-            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-            print("config", self.config)
-            print("device", self.device)
+        self.wb = wandb.init(project="ar", entity="stanford-action-recognition", config=args, reinit=False)
+        self.config = self.wb.config
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        print("config", self.config)
+        print("device", self.device)
 
-            streams = self.config.streams.split(",")
-            for stream in streams:
-                if stream in ["rgb", "flow"]:
-                    stream_config = {}
-                    stream_config["model_name"] = self.config.model
-                    stream_config["dataset_name"] = stream
-                    stream_config["optimizer_name"] = self.config.optimizer
-                    self.stream_configs.append(stream_config)
-                else:
-                    print("We have not implement this stream.")
-                    raise NotImplementedError
-
-            self.initialize_models()
-            self.train_val_sizes = {}
-            self.train_val_sizes["train"], self.train_val_sizes["val"] = self.initialize_train_datasets()
-            if self.config.is_toy:
-                self.train_val_sizes["train"] = self.config.train_toy_size
-                self.train_val_sizes["val"] = self.config.val_toy_size
-            self.initialize_optimizers()
-
-            for stream_config in self.stream_configs:
-                stream_config["model"].to(self.device)
-            self.stream_fusion = StreamFusion([stream_config["model"] for stream_config in self.stream_configs], num_classes=51, device=self.device).to(self.device)
-            # for name, param in self.stream_fusion.named_parameters():
-            #     print(name)  # only nn.ReLU and nn.Linear
-            if self.config.optimizer == "SGD":
-                self.stream_fusion_optimizer = optim.SGD(
-                    self.stream_fusion.parameters(), lr=self.config.lr, momentum=0.9, weight_decay=5e-4
-                )
+        streams = self.config.streams.split(",")
+        for stream in streams:
+            if stream in ["rgb", "flow"]:
+                stream_config = {}
+                stream_config["model_name"] = self.config.model
+                stream_config["dataset_name"] = stream
+                stream_config["optimizer_name"] = self.config.optimizer
+                self.stream_configs.append(stream_config)
             else:
-                self.stream_fusion_optimizer = optim.Adam(self.stream_fusion.parameters(), lr=self.config.lr)
-            self.criterion.to(self.device)
+                print("We have not implement this stream.")
+                raise NotImplementedError
+
+        self.initialize_models()
+        self.train_val_sizes = {}
+        self.train_val_sizes["train"], self.train_val_sizes["val"] = self.initialize_train_datasets()
+        if self.config.is_toy:
+            self.train_val_sizes["train"] = self.config.train_toy_size
+            self.train_val_sizes["val"] = self.config.val_toy_size
+        self.initialize_optimizers()
+
+        for stream_config in self.stream_configs:
+            stream_config["model"].to(self.device)
+        self.stream_fusion = StreamFusion([stream_config["model"] for stream_config in self.stream_configs], num_classes=51, device=self.device).to(self.device)
+        # for name, param in self.stream_fusion.named_parameters():
+        #     print(name)  # only nn.ReLU and nn.Linear
+        if self.config.optimizer == "SGD":
+            self.stream_fusion_optimizer = optim.SGD(
+                self.stream_fusion.parameters(), lr=self.config.lr, momentum=0.9, weight_decay=5e-4
+            )
+        else:
+            self.stream_fusion_optimizer = optim.Adam(self.stream_fusion.parameters(), lr=self.config.lr)
+        self.criterion.to(self.device)
 
     def initialize_models(self):
         for stream_config in self.stream_configs:
