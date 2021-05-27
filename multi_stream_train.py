@@ -24,6 +24,9 @@ RGB_OUTPUT_DIR = "./data/rgb_output"
 FLOW_OUTPUT_DIR = "./data/flow_output"
 CLIP_LEN = 16
 
+TRAIN_TOY_SIZE = 100
+VAL_TOY_SIZE = 10
+
 class StreamFusion(nn.Module):
     def __init__(self, stream_models, num_classes, device):
         super(StreamFusion, self).__init__()
@@ -75,6 +78,8 @@ class Train():
             self.initialize_models()
             self.train_val_sizes = {}
             self.train_val_sizes["train"], self.train_val_sizes["val"] = self.initialize_train_datasets()
+            if self.config.is_toy:
+                self.train_val_sizes["train"], self.train_val_sizes["val"] = TRAIN_TOY_SIZE, VAL_TOY_SIZE
             self.initialize_optimizers()
 
             for stream_config in self.stream_configs:
@@ -171,7 +176,6 @@ class Train():
                     print("We have not implement this dataset.")
                     raise NotImplementedError
                 sanity_check[split].add(len(stream_config["%s_dataloader" % split].dataset))
-                stream_config["%s_dataloader_iter" % split] = iter(stream_config["%s_dataloader" % split])
         assert len(sanity_check["train"]) == 1 and len(sanity_check["val"]) == 1
         return sanity_check["train"].pop(), sanity_check["val"].pop()
 
@@ -189,11 +193,16 @@ class Train():
 
     def train(self):
         for epoch in tqdm(range(0, self.config.epochs), desc='Epoch'):
+
             # each epoch has a training and validation step
             for phase in ["train", "val"]:
                 # reset the running loss and corrects
                 running_loss = 0.0
                 running_corrects = 0.0
+
+                # reset the iterator of datasets
+                for stream_config in self.stream_configs:
+                    stream_config["%s_dataloader_iter" % phase] = iter(stream_config["%s_dataloader" % phase])
 
                 if phase == "train":
                     for stream_config in self.stream_configs:
