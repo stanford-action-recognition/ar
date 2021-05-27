@@ -187,6 +187,7 @@ class Train():
                 raise NotImplementedError
 
     def train(self):
+        max_val_acc = 0.0
         for epoch in tqdm(range(0, self.config.epochs), desc='Epoch'):
 
             # each epoch has a training and validation step
@@ -265,6 +266,14 @@ class Train():
                         },
                         step=epoch,
                     )
+
+                    if epoch_acc > max_val_acc:
+                        print("Found better model.")
+                        max_val_acc = epoch_acc
+                        for stream_config in self.stream_configs:
+                            filename = f"model_{stream_config['dataset_name']}.pt"
+                            torch.save(stream_config["model"].state_dict(), filename)
+                            self.wb.save(filename)
 
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(

@@ -149,6 +149,7 @@ def train_model():
         trainval_sizes = {x: len(trainval_loaders[x].dataset) for x in ["train", "val"]}
         test_size = len(test_dataloader.dataset)
 
+        max_val_acc = 0.0
         for epoch in range(0, config.epochs):
             # each epoch has a training and validation step
             for phase in ["train", "val"]:
@@ -223,6 +224,12 @@ def train_model():
                         },
                         step=epoch,
                     )
+
+                    if epoch_acc > max_val_acc:
+                        print("Found better model.")
+                        max_val_acc = epoch_acc
+                        torch.save(model.state_dict(), "model.pt")
+                        wb.save("model.pt")
 
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
