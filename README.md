@@ -46,6 +46,9 @@ make train-r3d
     - change *OUTPUT_DIR* to wherever you want (please use absolute path)
 - Run `python rgb_train.py` or `python motion_train.py`
 
+## Two-stream
+- Run `python multi_stream_train.py --streams=rgb,flow`
+
 ## References
 
 The code is borrowed from or heavily inspired by:

@@ -7,6 +7,8 @@ def get_args():
     parser.add_argument(
         "--is_toy",
         type=bool,
+        default=True,
+        help="If is_toy, then the number of train iters is reduced to 100, the number of val iters is reduced to 10.",
     )
     parser.add_argument(
         "--dataset",
