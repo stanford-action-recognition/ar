@@ -74,7 +74,11 @@ class Train():
 
             self.initialize_models()
             self.train_val_sizes = {}
-            self.train_val_sizes["train"], self.train_val_sizes["val"] = self.initialize_train_datasets()
+            if self.config.is_toy:
+                self.train_val_sizes["train"], self.train_val_sizes["val"] = 100, 10
+                self.initialize_train_datasets()
+            else:
+                self.train_val_sizes["train"], self.train_val_sizes["val"] = self.initialize_train_datasets()
             self.initialize_optimizers()
 
             for stream_config in self.stream_configs:

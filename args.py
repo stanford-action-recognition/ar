@@ -5,6 +5,10 @@ def get_args():
     parser = argparse.ArgumentParser(description="Action Recognition")
 
     parser.add_argument(
+        "--is_toy",
+        type=bool,
+    )
+    parser.add_argument(
         "--dataset",
         type=str,
         default="HMDB51",
