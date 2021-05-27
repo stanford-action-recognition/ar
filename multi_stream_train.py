@@ -24,9 +24,6 @@ RGB_OUTPUT_DIR = "./data/rgb_output"
 FLOW_OUTPUT_DIR = "./data/flow_output"
 CLIP_LEN = 16
 
-TRAIN_TOY_SIZE = 100
-VAL_TOY_SIZE = 10
-
 class StreamFusion(nn.Module):
     def __init__(self, stream_models, num_classes, device):
         super(StreamFusion, self).__init__()
@@ -79,7 +76,8 @@ class Train():
             self.train_val_sizes = {}
             self.train_val_sizes["train"], self.train_val_sizes["val"] = self.initialize_train_datasets()
             if self.config.is_toy:
-                self.train_val_sizes["train"], self.train_val_sizes["val"] = TRAIN_TOY_SIZE, VAL_TOY_SIZE
+                self.train_val_sizes["train"] = self.config.train_toy_size
+                self.train_val_sizes["val"] = self.config.val_toy_size
             self.initialize_optimizers()
 
             for stream_config in self.stream_configs:
