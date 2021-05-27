@@ -75,17 +75,19 @@ class Train():
             self.initialize_models()
             self.train_val_sizes = {}
             self.train_val_sizes["train"], self.train_val_sizes["val"] = self.initialize_train_datasets()
-            # self.initialize_optimizers()
+            self.initialize_optimizers()
 
             for stream_config in self.stream_configs:
                 stream_config["model"].to(self.device)
             self.stream_fusion = StreamFusion([stream_config["model"] for stream_config in self.stream_configs], num_classes=51, device=self.device).to(self.device)
+            # for name, param in self.stream_fusion.named_parameters():
+            #     print(name)  # only nn.ReLU and nn.Linear
             if self.config.optimizer == "SGD":
                 self.stream_fusion_optimizer = optim.SGD(
-                    stream_config["train_params"], lr=self.config.lr, momentum=0.9, weight_decay=5e-4
+                    self.stream_fusion.parameters(), lr=self.config.lr, momentum=0.9, weight_decay=5e-4
                 )
             else:
-                self.stream_fusion_optimizer = optim.Adam(stream_config["model"].parameters(), lr=self.config.lr)
+                self.stream_fusion_optimizer = optim.Adam(self.stream_fusion.parameters(), lr=self.config.lr)
             self.criterion.to(self.device)
 
     def initialize_models(self):
@@ -216,10 +218,21 @@ class Train():
 
                     if phase == "train":
                         loss.backward()
+                        # print("test grad:", self.stream_configs[0]["model"].res3d.conv4.block1.conv2.temporal_spatial_conv.weight.grad)
                         torch.nn.utils.clip_grad_norm_(
                             self.stream_fusion.parameters(), self.config.clip_max_norm
                         )
                         self.stream_fusion_optimizer.step()
+                        for stream_config in self.stream_configs:
+                            if stream_config["optimizer_name"] == "SGD":
+                                torch.nn.utils.clip_grad_norm_(
+                                    stream_config["train_params"], self.config.clip_max_norm
+                                )
+                            else:
+                                torch.nn.utils.clip_grad_norm_(
+                                    stream_config["model"].parameters(), self.config.clip_max_norm
+                                )
+                            stream_config["optimizer"].step()
 
                     running_loss += loss.item() * inputs_list[0].size(0)
                     if iter % 1 == 0:
