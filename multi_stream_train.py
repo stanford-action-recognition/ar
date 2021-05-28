@@ -268,8 +268,8 @@ class Train():
 
                     running_corrects += torch.sum(preds == labels.data)
 
-                epoch_loss = running_loss / num_batches
-                epoch_acc = running_corrects.double() / num_batches
+                epoch_loss = running_loss / self.train_val_sizes[phase]
+                epoch_acc = running_corrects.double() / self.train_val_sizes[phase]
 
                 if phase == "train":
                     self.wb.log(
