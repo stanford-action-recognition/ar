@@ -58,8 +58,8 @@ def get_args():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=1000,
-        help="number of epochs to train (default: 100)",
+        default=10000,
+        help="number of epochs to train (default: 10000)",
     )
     parser.add_argument(
         "--clip_max_norm",
