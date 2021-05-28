@@ -211,7 +211,9 @@ class Train():
                         stream_config["model"].eval()
                     self.stream_fusion.eval()
 
-                for iteration in tqdm(range(self.train_val_sizes[phase]), desc='Iter'):
+                num_batches = self.train_val_sizes[phase] // self.config.batch_size + \
+                              (self.train_val_sizes[phase] % self.config.batch_size != 0)
+                for iteration in tqdm(range(num_batches), desc='Iter'):
                     inputs_list = []  # list of inputs from all streams
 
                     # a = datetime.now()
@@ -279,8 +281,8 @@ class Train():
 
                     running_corrects += torch.sum(preds == labels.data)
 
-                epoch_loss = running_loss / self.train_val_sizes[phase]
-                epoch_acc = running_corrects.double() / self.train_val_sizes[phase]
+                epoch_loss = running_loss / num_batches
+                epoch_acc = running_corrects.double() / num_batches
 
                 if phase == "train":
                     self.wb.log(
