@@ -46,6 +46,7 @@ def train_model():
 
         if config.model == "C3D":
             model = C3D_model.C3D(
+                is_stream=False,
                 num_classes=num_classes,
                 c3d_dropout_rate=config.c3d_dropout_rate,
                 in_channel=3,

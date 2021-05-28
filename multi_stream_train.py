@@ -97,33 +97,23 @@ class Train():
             num_channels = self.config.c3d_in_channel * 2 if stream_config["dataset_name"] == "flow" else 3
             if stream_config["model_name"] == "C3D":
                 stream_config["model"] = C3D_model.C3D(
+                    is_stream=True,
                     num_classes=HMDB_CLASS_NUM,
                     c3d_dropout_rate=self.config.c3d_dropout_rate,
                     in_channel=num_channels,
                     pretrained=False,
                 )
-                stream_config["train_params"] = [
-                    {"params": C3D_model.get_1x_lr_params(stream_config["model"]), "lr": self.config.lr},
-                    {"params": C3D_model.get_10x_lr_params(stream_config["model"]), "lr": self.config.lr * 10},
-                ]
             elif stream_config["model_name"] == "R2Plus1D":
-                stream_config["model"] = R2Plus1D_model.R2Plus1DClassifier(
-                    num_classes=HMDB_CLASS_NUM, in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
+                stream_config["model"] = R2Plus1D_model.R2Plus1DNet(
+                    in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
                 )
-                stream_config["train_params"] = [
-                    {"params": R2Plus1D_model.get_1x_lr_params(stream_config["model"]), "lr": self.config.lr},
-                    {
-                        "params": R2Plus1D_model.get_10x_lr_params(stream_config["model"]),
-                        "lr": self.config.lr * 10,
-                    },
-                ]
             elif stream_config["model_name"] == "R3D":
-                stream_config["model"] = R3D_model.R3DClassifier(
-                    num_classes=HMDB_CLASS_NUM, in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
+                stream_config["model"] = R3D_model.R3DNet(
+                    in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
                 )
-                stream_config["train_params"] = stream_config["model"].parameters()
             elif stream_config["model_name"] == "R2Plus1D_BERT":
                 # TODO: Integrate in_channel in models.
+                # TODO: Change line 67 in R2Plus1D_BERT.py to remove the FC that maps features to classes.
                 stream_config["model"] = rgb_r2plus1d_16f_34_bert10(num_classes=HMDB_CLASS_NUM, in_channel=num_channels, length=16)
                 stream_config["train_params"] = [
                     {"params": R2Plus1D_model.get_1x_lr_params(stream_config["model"]), "lr": self.config.lr},
@@ -180,10 +170,12 @@ class Train():
         for stream_config in self.stream_configs:
             if stream_config["optimizer_name"] == "SGD":
                 stream_config["optimizer"] = optim.SGD(
-                    stream_config["train_params"], lr=self.config.lr, momentum=0.9, weight_decay=5e-4
+                    stream_config["model"].parameters(), lr=self.config.lr, momentum=0.9, weight_decay=5e-4
                 )
             elif stream_config["optimizer_name"] == "Adam":
-                stream_config["optimizer"] = optim.Adam(stream_config["model"].parameters(), lr=self.config.lr)
+                stream_config["optimizer"] = optim.Adam(
+                    stream_config["model"].parameters(), lr=self.config.lr
+                )
             else:
                 print("Not supported optimizer.")
                 raise NotImplementedError
@@ -253,14 +245,9 @@ class Train():
                         # e = datetime.now()
 
                         for stream_config in self.stream_configs:
-                            if stream_config["optimizer_name"] == "SGD":
-                                torch.nn.utils.clip_grad_norm_(
-                                    stream_config["train_params"], self.config.clip_max_norm
-                                )
-                            else:
-                                torch.nn.utils.clip_grad_norm_(
-                                    stream_config["model"].parameters(), self.config.clip_max_norm
-                                )
+                            torch.nn.utils.clip_grad_norm_(
+                                stream_config["model"].parameters(), self.config.clip_max_norm
+                            )
                             stream_config["optimizer"].step()
 
                         # f = datetime.now()

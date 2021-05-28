@@ -9,9 +9,11 @@ class C3D(nn.Module):
     """
 
     def __init__(
-        self, num_classes, c3d_dropout_rate=0.2, in_channel=3, pretrained=False
+        self, is_stream, num_classes, c3d_dropout_rate=0.2, in_channel=3, pretrained=False
     ):
         super(C3D, self).__init__()
+
+        self.is_stream = is_stream  # Boolean
 
         self.conv1 = nn.Conv3d(in_channel, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1))
         self.bn1 = nn.BatchNorm3d(64)
@@ -42,8 +44,9 @@ class C3D(nn.Module):
         # self.fc7 = nn.Linear(4096, 4096)
         # self.fc8 = nn.Linear(4096, num_classes)
         self.fc6 = nn.Linear(2048, 2048)
-        self.fc7 = nn.Linear(2048, 2048) 
-        self.fc8 = nn.Linear(2048, num_classes) 
+        self.fc7 = nn.Linear(2048, 2048)
+        if not self.is_stream:
+            self.fc8 = nn.Linear(2048, num_classes)
 
         self.dropout = nn.Dropout(p=c3d_dropout_rate)
 
@@ -80,6 +83,9 @@ class C3D(nn.Module):
         x = self.dropout(x)
         x = self.relu(self.fc7(x))
         x = self.dropout(x)
+
+        if self.is_stream:
+            return x
 
         logits = self.fc8(x)
 
