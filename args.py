@@ -5,6 +5,24 @@ def get_args():
     parser = argparse.ArgumentParser(description="Action Recognition")
 
     parser.add_argument(
+        "--is_toy",
+        type=bool,
+        default=False,
+        help="If is_toy, then the number of train iters is reduced to train_toy_size, the number of val iters is reduced to val_toy_size.",
+    )
+    parser.add_argument(
+        "--train_toy_size",
+        type=int,
+        default=100,
+        help="If is_toy, then the number of train iters is reduced to train_toy_size.",
+    )
+    parser.add_argument(
+        "--val_toy_size",
+        type=int,
+        default=10,
+        help="If is_toy, then the number of val iters is reduced to val_toy_size.",
+    )
+    parser.add_argument(
         "--dataset",
         type=str,
         default="HMDB51",
@@ -73,7 +91,7 @@ def get_args():
     parser.add_argument(
         "--c3d_in_channel",
         type=int,
-        default=15,
+        default=3,
         help="C3D in channel",
     )
 

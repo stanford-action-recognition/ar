@@ -48,12 +48,13 @@ class rgb_r2plus1d_32f_34(nn.Module):
 
 class rgb_r2plus1d_16f_34_bert10(nn.Module):
     """Use when input video length is 16"""
-    def __init__(self, num_classes , length, modelPath=''):
+    def __init__(self, num_classes, in_channel, length, modelPath=''):
         super(rgb_r2plus1d_16f_34_bert10, self).__init__()
         self.hidden_size=512
         self.n_layers=1
         self.attn_heads=8
         self.num_classes=num_classes
+        self.in_channel = in_channel
         self.length=length
         self.dp = nn.Dropout(p=0.8)
         

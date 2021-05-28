@@ -157,12 +157,12 @@ class R3DNet(nn.Module):
             block_type (Module, optional): Type of block that is to be used to form the layers. Default: SpatioTemporalResBlock.
     """
 
-    def __init__(self, layer_sizes, block_type=SpatioTemporalResBlock):
+    def __init__(self, in_channel, layer_sizes, block_type=SpatioTemporalResBlock):
         super(R3DNet, self).__init__()
 
         # first conv, with stride 1x2x2 and kernel size 3x7x7
         self.conv1 = SpatioTemporalConv(
-            3, 64, [3, 7, 7], stride=[1, 2, 2], padding=[1, 3, 3]
+            in_channel, 64, [3, 7, 7], stride=[1, 2, 2], padding=[1, 3, 3]
         )
         # output of conv2 is same size as of conv1, no downsampling needed. kernel_size 3x3x3
         self.conv2 = SpatioTemporalResLayer(
@@ -210,13 +210,14 @@ class R3DClassifier(nn.Module):
     def __init__(
         self,
         num_classes,
+        in_channel,
         layer_sizes,
         block_type=SpatioTemporalResBlock,
         pretrained=False,
     ):
         super(R3DClassifier, self).__init__()
 
-        self.res3d = R3DNet(layer_sizes, block_type)
+        self.res3d = R3DNet(in_channel, layer_sizes, block_type)
         self.linear = nn.Linear(512, num_classes)
 
         self.__init_weight()
@@ -271,7 +272,7 @@ if __name__ == "__main__":
     import torch
 
     inputs = torch.rand(1, 3, 16, 112, 112)
-    net = R3DClassifier(101, (2, 2, 2, 2), pretrained=False)
+    net = R3DClassifier(101, 3, (2, 2, 2, 2), pretrained=False)
 
     outputs = net.forward(inputs)
     print(outputs.size())

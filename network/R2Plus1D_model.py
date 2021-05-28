@@ -252,12 +252,12 @@ class R2Plus1DNet(nn.Module):
             block_type (Module, optional): Type of block that is to be used to form the layers. Default: SpatioTemporalResBlock.
     """
 
-    def __init__(self, layer_sizes, block_type=SpatioTemporalResBlock):
+    def __init__(self, in_channel, layer_sizes, block_type=SpatioTemporalResBlock):
         super(R2Plus1DNet, self).__init__()
 
         # first conv, with stride 1x2x2 and kernel size 1x7x7
         self.conv1 = SpatioTemporalConv(
-            3, 64, (1, 7, 7), stride=(1, 2, 2), padding=(0, 3, 3), first_conv=True
+            in_channel, 64, (1, 7, 7), stride=(1, 2, 2), padding=(0, 3, 3), first_conv=True
         )
         # output of conv2 is same size as of conv1, no downsampling needed. kernel_size 3x3x3
         self.conv2 = SpatioTemporalResLayer(
@@ -305,13 +305,14 @@ class R2Plus1DClassifier(nn.Module):
     def __init__(
         self,
         num_classes,
+        in_channel,
         layer_sizes,
         block_type=SpatioTemporalResBlock,
         pretrained=False,
     ):
         super(R2Plus1DClassifier, self).__init__()
 
-        self.res2plus1d = R2Plus1DNet(layer_sizes, block_type)
+        self.res2plus1d = R2Plus1DNet(in_channel, layer_sizes, block_type)
         self.linear = nn.Linear(512, num_classes)
 
         self.__init_weight()
