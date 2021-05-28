@@ -12,8 +12,8 @@ from network import C3D_model, R2Plus1D_model, R3D_model
 
 HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 
-HMDB_RGB_DATASET_DIR = "/home/Dell/jpegs_256"
-HMDB_FLOW_DATASET_DIR = "/home/Dell/tvl1_flow"
+HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
+HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 OUTPUT_DIR = "./data/flow_output"
 
 
@@ -50,22 +50,26 @@ def train_model():
                 {"params": C3D_model.get_1x_lr_params(model), "lr": config.lr},
                 {"params": C3D_model.get_10x_lr_params(model), "lr": config.lr * 10},
             ]
-        # elif config.model == "R2Plus1D":
-        #     model = R2Plus1D_model.R2Plus1DClassifier(
-        #         num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
-        #     )
-        #     train_params = [
-        #         {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
-        #         {
-        #             "params": R2Plus1D_model.get_10x_lr_params(model),
-        #             "lr": config.lr * 10,
-        #         },
-        #     ]
-        # elif config.model == "R3D":
-        #     model = R3D_model.R3DClassifier(
-        #         num_classes=num_classes, layer_sizes=(2, 2, 2, 2)
-        #     )
-        #     train_params = model.parameters()
+        elif config.model == "R2Plus1D":
+            model = R2Plus1D_model.R2Plus1DClassifier(
+                num_classes=num_classes,
+                in_channel=config.c3d_in_channel * 2,
+                layer_sizes=(2, 2, 2, 2)
+            )
+            train_params = [
+                {"params": R2Plus1D_model.get_1x_lr_params(model), "lr": config.lr},
+                {
+                    "params": R2Plus1D_model.get_10x_lr_params(model),
+                    "lr": config.lr * 10,
+                },
+            ]
+        elif config.model == "R3D":
+            model = R3D_model.R3DClassifier(
+                num_classes=num_classes,
+                in_channel=config.c3d_in_channel * 2,
+                layer_sizes=(2, 2, 2, 2),
+            )
+            train_params = model.parameters()
         else:
             print("We only implemented C3D model.")
             raise NotImplementedError

@@ -15,6 +15,8 @@ from network.R2Plus1D_BERT import (
     rgb_r2plus1d_64f_34_bert10,
 )
 
+# from datetime import datetime
+
 args = get_args()
 HMDB_CLASS_NUM = 51
 HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
@@ -211,9 +213,14 @@ class Train():
 
                 for iteration in tqdm(range(self.train_val_sizes[phase]), desc='Iter'):
                     inputs_list = []  # list of inputs from all streams
+
+                    # a = datetime.now()
+
                     for stream_config in self.stream_configs:
                         inputs, labels = next(stream_config["%s_dataloader_iter" % phase])
                         inputs_list.append(inputs.float().to(self.device))
+
+                    # b = datetime.now()
 
                     outputs = self.stream_fusion(inputs_list)
                     probs = nn.Softmax(dim=1)(outputs)
@@ -221,13 +228,21 @@ class Train():
                     labels = labels.to(self.device)
                     loss = self.criterion(outputs, labels)
 
+                    # c = datetime.now()
+
                     if phase == "train":
                         loss.backward()
+
+                        # d = datetime.now()
+
                         # print("test grad:", self.stream_configs[0]["model"].res3d.conv4.block1.conv2.temporal_spatial_conv.weight.grad)
                         torch.nn.utils.clip_grad_norm_(
                             self.stream_fusion.parameters(), self.config.clip_max_norm
                         )
                         self.stream_fusion_optimizer.step()
+
+                        # e = datetime.now()
+
                         for stream_config in self.stream_configs:
                             if stream_config["optimizer_name"] == "SGD":
                                 torch.nn.utils.clip_grad_norm_(
@@ -239,9 +254,21 @@ class Train():
                                 )
                             stream_config["optimizer"].step()
 
+                        # f = datetime.now()
+
                     running_loss += loss.item() * inputs_list[0].size(0)
                     if iteration % 1 == 0:
                         print("Iter loss:", loss.item() * inputs.size(0))
+                        # ba = b - a
+                        # print("b - a:", ba.microseconds)
+                        # cb = c - b
+                        # print("c - b:", cb.microseconds)
+                        # dc = d - c
+                        # print("d - c:", dc.microseconds)
+                        # ed = e - d
+                        # print("e - d:", ed.microseconds)
+                        # fe = f - e
+                        # print("f - e:", fe.microseconds)
 
                     running_corrects += torch.sum(preds == labels.data)
 
