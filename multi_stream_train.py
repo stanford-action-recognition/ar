@@ -32,7 +32,7 @@ class StreamFusion(nn.Module):
         self.device = device
         self.stream_models = stream_models
         # Please make sure the last layer of each model is a nn.Linear :)
-        self.input_dimension = sum([list(stream_model.modules())[-1].out_features for stream_model in stream_models])
+        self.input_dimension = sum([stream_model.get_output_feature_number() for stream_model in stream_models])
         self.relu = nn.ReLU()
         self.fusion_layer = nn.Linear(in_features=self.input_dimension, out_features=num_classes, bias=True)
 

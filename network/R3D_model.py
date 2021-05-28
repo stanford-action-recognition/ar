@@ -194,6 +194,9 @@ class R3DNet(nn.Module):
 
         return x.view(-1, 512)
 
+    def get_output_feature_number(self):
+        return 512
+
 
 class R3DClassifier(nn.Module):
     r"""Forms a complete ResNet classifier producing vectors of size num_classes, by initializng 5 layers,

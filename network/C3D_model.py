@@ -45,7 +45,9 @@ class C3D(nn.Module):
         # self.fc8 = nn.Linear(4096, num_classes)
         self.fc6 = nn.Linear(2048, 2048)
         self.fc7 = nn.Linear(2048, 2048)
-        if not self.is_stream:
+        if self.is_stream:
+            self.fc8 = nn.Linear(2048, 512)
+        else:
             self.fc8 = nn.Linear(2048, num_classes)
 
         self.dropout = nn.Dropout(p=c3d_dropout_rate)
@@ -84,12 +86,12 @@ class C3D(nn.Module):
         x = self.relu(self.fc7(x))
         x = self.dropout(x)
 
-        if self.is_stream:
-            return x
-
         logits = self.fc8(x)
 
         return logits
+
+    def get_output_feature_number(self):
+        return 512
 
     def __load_pretrained_weights(self):
         """Initialiaze network."""
