@@ -216,9 +216,16 @@ class Train():
 
                     # a = datetime.now()
 
+                    should_continue = False
                     for stream_config in self.stream_configs:
-                        inputs, labels = next(stream_config["%s_dataloader_iter" % phase])
+                        try:
+                            inputs, labels = next(stream_config["%s_dataloader_iter" % phase])
+                        except StopIteration:
+                            should_continue = True
+                            break
                         inputs_list.append(inputs.float().to(self.device))
+                    if should_continue:
+                        continue
 
                     # b = datetime.now()
 
