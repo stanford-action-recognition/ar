@@ -20,7 +20,7 @@ HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 OUTPUT_DIR = f"./data/rgb_output_{str(int(min(args.dataset_percentage, 1) * 100))}"
-CLIP_LEN = 16
+CLIP_LEN = 32
 
 
 def train_model():
@@ -205,8 +205,9 @@ def train_model():
                         )
                         optimizer.step()
 
-                    running_loss += loss.item() * inputs.size(0)
-                    print("running_loss", running_loss)
+                    tmp += loss.item() * inputs.size(0)
+                    running_loss += tmp
+                    print("running_loss", tmp)
 
                     running_corrects += torch.sum(preds == labels.data)
 

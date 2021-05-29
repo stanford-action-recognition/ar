@@ -247,6 +247,7 @@ class R3D_BERTClassifier(nn.Module):
         num_classes,
         in_channels,
         layer_sizes,
+        clip_len,
         block_type=SpatioTemporalResBlock,
         pretrained=False,
     ):
@@ -255,6 +256,7 @@ class R3D_BERTClassifier(nn.Module):
         self.res3d_bert = R3DNet_BERT(in_channels=in_channels,
                                  num_classes=num_classes,
                                  layer_sizes=layer_sizes,
+                                 length = clip_len,
                                  block_type=block_type)
         self.linear = nn.Linear(512, num_classes)
 
@@ -309,8 +311,8 @@ def get_10x_lr_params(model):
 if __name__ == "__main__":
     import torch
 
-    inputs = torch.rand(1, 3, 16, 60, 60)
-    net = R3D_BERTClassifier(num_classes=51, in_channels=3, layer_sizes=(2, 2, 2, 2), pretrained=False)
+    inputs = torch.rand(1, 3, 32, 60, 60)
+    net = R3D_BERTClassifier(num_classes=51, in_channels=3, clip_len=32, layer_sizes=(2, 2, 2, 2), pretrained=False)
 
     outputs = net.forward(inputs)
     print(outputs.size())

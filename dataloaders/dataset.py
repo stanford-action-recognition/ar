@@ -98,7 +98,8 @@ class RGBDataset(Dataset):
         buffer = self.crop(buffer, self.clip_len, self.crop_size)
         labels = np.array(self.label_array[index])
 
-        if self.split == "test":
+        if self.split == "test" or "train":
+            print("Augmentation Performed in ", self.split)
             # Perform data augmentation
             buffer = self.randomflip(buffer)
         buffer = self.normalize(buffer)
