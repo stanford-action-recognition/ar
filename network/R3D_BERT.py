@@ -250,7 +250,7 @@ class R3D_BERTClassifier(nn.Module):
         block_type=SpatioTemporalResBlock,
         pretrained=False,
     ):
-        super(R3DClassifier, self).__init__()
+        super(R3D_BERTClassifier, self).__init__()
 
         self.res3d_bert = R3DNet_BERT(in_channels=in_channels,
                                  num_classes=num_classes,
