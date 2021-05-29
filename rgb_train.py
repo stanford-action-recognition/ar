@@ -8,7 +8,7 @@ from torch.autograd import Variable
 
 from args import get_args
 from dataloaders.dataset import RGBDataset
-from network import C3D_model, R2Plus1D_model, R3D_model
+from network import C3D_model, R2Plus1D_model, R3D_model, R3D_BERT
 from network.R2Plus1D_BERT import (
     rgb_r2plus1d_16f_34_bert10,
     rgb_r2plus1d_32f_34_bert10,
@@ -20,6 +20,7 @@ HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 OUTPUT_DIR = f"./data/rgb_output_{str(int(min(args.dataset_percentage, 1) * 100))}"
+CLIP_LEN = 16
 
 
 def train_model():
@@ -81,6 +82,12 @@ def train_model():
                     "lr": config.lr * 10,
                 },
             ]
+        elif config.model == "R3D_BERT":
+            model = R3D_BERT.R3D_BERTClassifier(num_classes=num_classes,
+                                               in_channels=3,
+                                               layer_sizes=(2, 2, 2, 2),
+                                               pretrained=False)
+            train_params = model.parameters()
         else:
             print("We have not implement this model.")
             raise NotImplementedError
@@ -107,7 +114,6 @@ def train_model():
         criterion.to(device)
 
         print("Training model on {} dataset...".format(config.dataset))
-        clip_len = 16
         train_dataloader = DataLoader(
             RGBDataset(
                 dataset_dir=dataset_dir,
@@ -115,7 +121,7 @@ def train_model():
                 output_dir=OUTPUT_DIR,
                 dataset_percentage=config.dataset_percentage,
                 split="train",
-                clip_len=clip_len,
+                clip_len=CLIP_LEN,
             ),
             batch_size=config.batch_size,
             shuffle=True,
@@ -128,7 +134,7 @@ def train_model():
                 output_dir=OUTPUT_DIR,
                 dataset_percentage=config.dataset_percentage,
                 split="val",
-                clip_len=clip_len,
+                clip_len=CLIP_LEN,
             ),
             batch_size=config.batch_size,
             num_workers=config.num_workers,
@@ -140,7 +146,7 @@ def train_model():
                 output_dir=OUTPUT_DIR,
                 dataset_percentage=config.dataset_percentage,
                 split="test",
-                clip_len=clip_len,
+                clip_len=CLIP_LEN,
             ),
             batch_size=config.batch_size,
             num_workers=config.num_workers,
