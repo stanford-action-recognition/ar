@@ -86,6 +86,7 @@ def train_model():
             model = R3D_BERT.R3D_BERTClassifier(num_classes=num_classes,
                                                in_channels=3,
                                                layer_sizes=(2, 2, 2, 2),
+                                               clip_len=CLIP_LEN,
                                                pretrained=False)
             train_params = model.parameters()
         else:
