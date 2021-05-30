@@ -51,6 +51,7 @@ make train-r3d
 
 ## References
 
-The code is borrowed from or heavily inspired by:
+The code are borrowed from or heavily inspired by:
 
+- https://github.com/artest08/LateTemporalModeling3DCNN
 - https://github.com/jfzhang95/pytorch-video-recognition
