@@ -20,7 +20,7 @@ HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 OUTPUT_DIR = f"./data/rgb_output_{str(int(min(args.dataset_percentage, 1) * 100))}"
-CLIP_LEN = 32
+CLIP_LEN = args.clip_len
 
 
 def train_model():

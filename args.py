@@ -95,4 +95,11 @@ def get_args():
         help="C3D in channel",
     )
 
+    parser.add_argument(
+        "--clip_len",
+        type=int,
+        default=32,
+        help="Temporal dimension",
+    )
+
     return parser.parse_args()
