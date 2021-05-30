@@ -7,10 +7,26 @@ import numpy as np
 from torch.utils.data import Dataset
 from shutil import copytree
 import torch.nn.functional as F
+import torchvision.transforms as transforms
+from utils.autoaugment import ImageNetPolicy
 
 RESIZE_HEIGHT = 64
 RESIZE_WIDTH = 85
 CROP_SIZE = 60
+
+train_transform = transforms.Compose(
+    [
+        transforms.ToPILImage("RGB"),
+        # transforms.Resize((60, 60)),
+        # transforms.RandomResizedCrop(size=32, scale=(0.9, 1.1), ratio=(0.75, 1.33)),
+        # transforms.RandomRotation(degrees=15),
+        # transforms.ColorJitter(0.5, 0.5, 0.5, 0.1),
+        ImageNetPolicy(),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ]
+)
+
 
 def temporal_padding(buffer, clip_len):
     """Pad buffer to have temporal length of clip_len, Pad with 0"""
@@ -18,10 +34,11 @@ def temporal_padding(buffer, clip_len):
         pass
     else:
         pad_len = clip_len - buffer.shape[0] + 1
-        npad = ((pad_len, 0), (0, 0), (0, 0), (0,0))
-        buffer = np.pad(buffer, pad_width=npad, mode='constant', constant_values=0)
+        npad = ((pad_len, 0), (0, 0), (0, 0), (0, 0))
+        buffer = np.pad(buffer, pad_width=npad, mode="constant", constant_values=0)
     assert buffer.shape[0] - clip_len > 0, "Incorrect Padding"
     return buffer
+
 
 class RGBDataset(Dataset):
     r"""A Dataset for a folder of videos. Expects the directory structure to be
@@ -113,8 +130,12 @@ class RGBDataset(Dataset):
         if self.split == "test" or "train":
             # print("Augmentation Performed in ", self.split)
             # Perform data augmentation
-            buffer = self.randomflip(buffer)
+            # buffer = self.randomflip(buffer)
+            for i in range(buffer.shape[0]):
+                img = train_transform(buffer[i].astype(int))
+                buffer[i] = img.cpu().detach().numpy().transpose((1, 2, 0))
         buffer = self.normalize(buffer)
+
         buffer = self.to_tensor(buffer)
         return torch.from_numpy(buffer), torch.from_numpy(labels)
 
