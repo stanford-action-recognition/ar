@@ -384,7 +384,7 @@ class FlowDataset(Dataset):
         buffer = self.crop(buffer, self.clip_len, self.crop_size)
         labels = np.array(self.label_array[index])
 
-        if self.split == "test":
+        if self.split == "train":
             # Perform data augmentation
             buffer = self.randomflip(buffer)
         buffer = self.normalize(buffer)
