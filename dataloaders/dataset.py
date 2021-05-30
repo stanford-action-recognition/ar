@@ -6,10 +6,22 @@ import cv2
 import numpy as np
 from torch.utils.data import Dataset
 from shutil import copytree
+import torch.nn.functional as F
 
 RESIZE_HEIGHT = 64
 RESIZE_WIDTH = 85
 CROP_SIZE = 60
+
+def __temporal_padding(buffer, clip_len):
+    """Pad buffer to have temporal length of clip_len, Pad with 0"""
+    torch.functional.pad()
+    if buffer.shape[0] >= clip_len:
+        return buffer
+    else:
+        pad_len = clip_len - buffer.shape[0]
+        npad = ((pad_len, 0), (0, 0), (0, 0), (0,0))
+        buffer = np.pad(buffer, pad_width=npad, mode='constant', constant_values=0)
+        return buffer
 
 class RGBDataset(Dataset):
     r"""A Dataset for a folder of videos. Expects the directory structure to be
@@ -237,6 +249,7 @@ class RGBDataset(Dataset):
 
     def crop(self, buffer, clip_len, crop_size):
         # randomly select time index for temporal jittering
+        buffer = __temporal_padding(buffer, clip_len)
         time_index = np.random.randint(buffer.shape[0] - clip_len)
 
         # Randomly select start indices in order to crop the video
