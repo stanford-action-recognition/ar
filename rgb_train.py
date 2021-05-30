@@ -206,7 +206,7 @@ def train_model():
                         )
                         optimizer.step()
 
-                    tmp += loss.item() * inputs.size(0)
+                    tmp = loss.item() * inputs.size(0)
                     running_loss += tmp
                     print("running_loss", tmp)
 
