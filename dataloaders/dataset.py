@@ -544,6 +544,7 @@ class FlowDataset(Dataset):
 
     def crop(self, buffer, clip_len, crop_size):
         # randomly select time index for temporal jittering
+        buffer = __temporal_padding(buffer, clip_len)
         time_index = np.random.randint(buffer.shape[0] - clip_len)
 
         # Randomly select start indices in order to crop the video
