@@ -20,11 +20,17 @@ from network.R2Plus1D_BERT import (
 args = get_args()
 HMDB_CLASS_NUM = 51
 HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
+
 HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
+
 RGB_OUTPUT_DIR = "./data/rgb_output"
 FLOW_OUTPUT_DIR = "./data/flow_output"
+
+PRETRAINED_MODEL_FORMAT = "./model/%s/%s_model.pt"
+
 CLIP_LEN = 16
+
 
 class StreamFusion(nn.Module):
     def __init__(self, stream_models, num_classes, device):
@@ -125,6 +131,11 @@ class Train():
             else:
                 print("We have not implement this model.")
                 raise NotImplementedError
+
+            if self.config.use_pretrained:
+                stream_config["model"].load_state_dict(
+                    torch.load(PRETRAINED_MODEL_FORMAT % (
+                        stream_config["dataset_name"], stream_config["model_name"])))
 
     def initialize_train_datasets(self):
         sanity_check = {"train": set(), "val": set()}
@@ -294,7 +305,8 @@ class Train():
                         print("Found better model.")
                         max_val_acc = epoch_acc
                         for stream_config in self.stream_configs:
-                            filename = f"model_{stream_config['dataset_name']}.pt"
+                            filename = PRETRAINED_MODEL_FORMAT % (
+                                stream_config["dataset_name"], stream_config["model_name"])
                             torch.save(stream_config["model"].state_dict(), filename)
                             self.wb.save(filename)
 

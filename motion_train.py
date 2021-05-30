@@ -16,6 +16,8 @@ HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 OUTPUT_DIR = "./data/flow_output"
 
+PRETRAINED_MODEL_FORMAT = "./model/flow/%s_model.pt"
+
 
 def train_model():
     args = get_args()
@@ -74,6 +76,9 @@ def train_model():
         else:
             print("We only implemented C3D model.")
             raise NotImplementedError
+
+        if config.use_pretrained:
+            model.load_state_dict(torch.load(PRETRAINED_MODEL_FORMAT % config.model))
 
         wb.watch(model)
 
@@ -212,8 +217,9 @@ def train_model():
                     if epoch_acc > max_val_acc:
                         print("Found better model.")
                         max_val_acc = epoch_acc
-                        torch.save(model.state_dict(), "model.pt")
-                        wb.save("model.pt")
+                        filename = PRETRAINED_MODEL_FORMAT % config.model
+                        torch.save(model.state_dict(), filename)
+                        wb.save(filename)
 
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
