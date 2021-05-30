@@ -17,7 +17,7 @@ def temporal_padding(buffer, clip_len):
     if buffer.shape[0] > clip_len:
         return buffer
     else:
-        pad_len = clip_len - buffer.shape[0]
+        pad_len = clip_len - buffer.shape[0] + 1
         npad = ((pad_len, 0), (0, 0), (0, 0), (0,0))
         buffer = np.pad(buffer, pad_width=npad, mode='constant', constant_values=0)
         return buffer
