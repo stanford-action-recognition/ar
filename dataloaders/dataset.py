@@ -111,7 +111,7 @@ class RGBDataset(Dataset):
         labels = np.array(self.label_array[index])
 
         if self.split == "test" or "train":
-            print("Augmentation Performed in ", self.split)
+            # print("Augmentation Performed in ", self.split)
             # Perform data augmentation
             buffer = self.randomflip(buffer)
         buffer = self.normalize(buffer)
