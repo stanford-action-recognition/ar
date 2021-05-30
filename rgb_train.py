@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 
 from args import get_args
+import dataloaders.dataset
 from dataloaders.dataset import RGBDataset
 from network import C3D_model, R2Plus1D_model, R3D_model, R3D_BERT
 from network.R2Plus1D_BERT import (
