@@ -15,12 +15,13 @@ CROP_SIZE = 60
 def temporal_padding(buffer, clip_len):
     """Pad buffer to have temporal length of clip_len, Pad with 0"""
     if buffer.shape[0] > clip_len:
-        return buffer
+        pass
     else:
         pad_len = clip_len - buffer.shape[0] + 1
         npad = ((pad_len, 0), (0, 0), (0, 0), (0,0))
         buffer = np.pad(buffer, pad_width=npad, mode='constant', constant_values=0)
-        return buffer
+    assert buffer.shape[0] - clip_len > 0, "Incorrect Padding"
+    return buffer
 
 class RGBDataset(Dataset):
     r"""A Dataset for a folder of videos. Expects the directory structure to be
@@ -249,6 +250,7 @@ class RGBDataset(Dataset):
     def crop(self, buffer, clip_len, crop_size):
         # randomly select time index for temporal jittering
         buffer = temporal_padding(buffer, clip_len)
+        assert buffer.shape[0] - clip_len > 0, "Incorrect Padding"
         time_index = np.random.randint(buffer.shape[0] - clip_len)
 
         # Randomly select start indices in order to crop the video
