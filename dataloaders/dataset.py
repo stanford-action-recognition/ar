@@ -14,7 +14,7 @@ CROP_SIZE = 60
 
 def temporal_padding(buffer, clip_len):
     """Pad buffer to have temporal length of clip_len, Pad with 0"""
-    if buffer.shape[0] >= clip_len:
+    if buffer.shape[0] > clip_len:
         return buffer
     else:
         pad_len = clip_len - buffer.shape[0]
