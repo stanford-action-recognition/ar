@@ -108,3 +108,4 @@ venv.bak/
 data
 wandb
 c3d-pretrained.pth
+model.pt
