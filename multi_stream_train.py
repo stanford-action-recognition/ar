@@ -103,20 +103,37 @@ class Train():
             num_channels = self.config.c3d_in_channel * 2 if stream_config["dataset_name"] == "flow" else 3
             if stream_config["model_name"] == "C3D":
                 stream_config["model"] = C3D_model.C3D(
-                    is_stream=True,
                     num_classes=HMDB_CLASS_NUM,
                     c3d_dropout_rate=self.config.c3d_dropout_rate,
                     in_channel=num_channels,
                     pretrained=False,
                 )
+                if self.config.use_pretrained:
+                    stream_config["model"].load_state_dict(
+                        torch.load(PRETRAINED_MODEL_FORMAT % (
+                            stream_config["dataset_name"], stream_config["model_name"])))
+                stream_config["model"].fc8 = nn.Linear(2048, 512)
+
             elif stream_config["model_name"] == "R2Plus1D":
-                stream_config["model"] = R2Plus1D_model.R2Plus1DNet(
-                    in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
+                stream_config["model"] = R2Plus1D_model.R2Plus1DClassifier(
+                    num_classes=HMDB_CLASS_NUM, in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
                 )
+                if self.config.use_pretrained:
+                    stream_config["model"].load_state_dict(
+                        torch.load(PRETRAINED_MODEL_FORMAT % (
+                            stream_config["dataset_name"], stream_config["model_name"])))
+                stream_config["model"] = stream_config["model"].res2plus1d
+
             elif stream_config["model_name"] == "R3D":
-                stream_config["model"] = R3D_model.R3DNet(
-                    in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
+                stream_config["model"] = R3D_model.R3DClassifier(
+                    num_classes=HMDB_CLASS_NUM, in_channel=num_channels, layer_sizes=(2, 2, 2, 2)
                 )
+                if self.config.use_pretrained:
+                    stream_config["model"].load_state_dict(
+                        torch.load(PRETRAINED_MODEL_FORMAT % (
+                            stream_config["dataset_name"], stream_config["model_name"])))
+                stream_config["model"] = stream_config["model"].res3d
+
             elif stream_config["model_name"] == "R2Plus1D_BERT":
                 # TODO: Integrate in_channel in models.
                 # TODO: Change line 67 in R2Plus1D_BERT.py to remove the FC that maps features to classes.
@@ -131,14 +148,9 @@ class Train():
             else:
                 print("We have not implement this model.")
                 raise NotImplementedError
-
-            if self.config.use_pretrained:
-                stream_config["model"].load_state_dict(
-                    torch.load(PRETRAINED_MODEL_FORMAT % (
-                        stream_config["dataset_name"], stream_config["model_name"])))
-                if self.config.freeze_pretrained:
-                    for param in stream_config["model"].parameters():
-                        param.requires_grad = False
+            if self.config.freeze_stream_models:
+                for param in stream_config["model"].parameters():
+                    param.requires_grad = False
 
     def initialize_train_datasets(self):
         sanity_check = {"train": set(), "val": set()}
@@ -258,7 +270,7 @@ class Train():
 
                         # e = datetime.now()
 
-                        if not self.config.use_pretrained or not self.config.freeze_pretrained:
+                        if not self.config.use_pretrained or not self.config.freeze_stream_models:
                             for stream_config in self.stream_configs:
                                 torch.nn.utils.clip_grad_norm_(
                                     stream_config["model"].parameters(), self.config.clip_max_norm

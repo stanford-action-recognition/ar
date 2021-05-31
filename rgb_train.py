@@ -50,7 +50,6 @@ def train_model():
 
         if config.model == "C3D":
             model = C3D_model.C3D(
-                is_stream=False,
                 num_classes=num_classes,
                 c3d_dropout_rate=config.c3d_dropout_rate,
                 in_channel=3,
@@ -98,6 +97,9 @@ def train_model():
 
         if config.use_pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FORMAT % config.model))
+        if config.freeze_stream_models:
+            for param in model.parameters():
+                param.requires_grad = False
 
         wb.watch(model)
 
