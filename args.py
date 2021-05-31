@@ -41,6 +41,12 @@ def get_args():
         help="Whether to load pretrained models.",
     )
     parser.add_argument(
+        "--freeze_pretrained",
+        type=bool,
+        default=False,
+        help="Whether to change the parameters of pretrained models during training.",
+    )
+    parser.add_argument(
         "--dataset_percentage",
         type=float,
         default=1.0,
