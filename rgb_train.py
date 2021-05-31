@@ -20,6 +20,9 @@ HMDB_SPLITS_DIR = "./fixtures/hmdb51_splits"
 HMDB_RGB_DATASET_DIR = "./data/jpegs_256"
 HMDB_FLOW_DATASET_DIR = "./data/tvl1_flow"
 OUTPUT_DIR = f"./data/rgb_output_{str(int(min(args.dataset_percentage, 1) * 100))}"
+
+PRETRAINED_MODEL_FORMAT = "./model/rgb/%s_model.pt"
+
 CLIP_LEN = args.clip_len
 
 
@@ -92,6 +95,9 @@ def train_model():
         else:
             print("We have not implement this model.")
             raise NotImplementedError
+
+        if config.use_pretrained:
+            model.load_state_dict(torch.load(PRETRAINED_MODEL_FORMAT % config.model))
 
         wb.watch(model)
 
@@ -237,8 +243,9 @@ def train_model():
                     if epoch_acc > max_val_acc:
                         print("Found better model.")
                         max_val_acc = epoch_acc
-                        torch.save(model.state_dict(), "model.pt")
-                        wb.save("model.pt")
+                        filename = PRETRAINED_MODEL_FORMAT % config.model
+                        torch.save(model.state_dict(), filename)
+                        wb.save(filename)
 
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(

@@ -35,6 +35,18 @@ def get_args():
         help="Comma separated list of streams. Available streams are rgb, flow. All streams are on HMDB51 dataset.",
     )
     parser.add_argument(
+        "--use_pretrained",
+        type=bool,
+        default=False,
+        help="Whether to load pretrained models.",
+    )
+    parser.add_argument(
+        "--freeze_pretrained",
+        type=bool,
+        default=False,
+        help="Whether to change the parameters of pretrained models during training.",
+    )
+    parser.add_argument(
         "--dataset_percentage",
         type=float,
         default=1.0,
