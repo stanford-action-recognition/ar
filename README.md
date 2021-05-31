@@ -48,7 +48,7 @@ make train-r3d
 
 ## Two-stream
 - Run `python multi_stream_train.py --streams=rgb,flow`
-- If use pretrained model and want to freeze the parameters of the pretrained models, run `python multi_stream_train.py --streams=rgb,flow --use_pretrained --freeze_pretrained`. If use pretrained model without freezing the parameters, note that the new models will replace the pretrained models after training.
+- If use pretrained model and want to freeze the parameters of the pretrained models, run `python multi_stream_train.py --streams=rgb,flow --use_pretrained --freeze_stream_models`. If use pretrained model without freezing the parameters, note that the new models will replace the pretrained models after training.
 
 ## References
 
