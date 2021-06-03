@@ -44,16 +44,21 @@ python motion_train.py
 python multi_stream_train.py --streams=rgb,flow
 ```
 
-- If use pretrained model and want to freeze the parameters of the pretrained models,
-  run `python multi_stream_train.py --streams=rgb,flow --use_pretrained=True --freeze_stream_models=True`.
+- If use pretrained model and want to freeze the parameters of the pretrained models,  run
+  ```shell
+  python multi_stream_train.py --streams=rgb,flow --use_pretrained=True --freeze_stream_models=True
+  ```
   If use pretrained model without freezing the parameters, note that the new models will replace the pretrained models after training.
-- multi_stream_add.py is for summing predictions from the pretrained models of all streams,
-  please run with `python multi_stream_add.py --streams=rgb,flow --use_pretrained=True --freeze_stream_models=True`.
+
+- multi_stream_add.py is for summing predictions from the pretrained models of all streams, run
+  ```shell
+  python multi_stream_add.py --streams=rgb,flow --use_pretrained=True --freeze_stream_models=True
+  ```
   This program will print train / val acc.
 
 ## References
 
-The code are borrowed from or heavily inspired by:
+The code is borrowed from or inspired by:
 
 - https://github.com/artest08/LateTemporalModeling3DCNN
 - https://github.com/jfzhang95/pytorch-video-recognition
