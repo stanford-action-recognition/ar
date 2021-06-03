@@ -105,12 +105,10 @@ np.save("./plots/conf_maxtrix_R3D_BERT_8", conf_matrix)
 conf_matrix = np.load("./plots/conf_maxtrix_R3D_BERT_8.npy")
 # Visualize conf_matrix with heatmap
 labels2index = test_dataloader.dataset.label2index
-# index2labels = {}
-# for k, v in labels2index.items():
-#     index2labels[v] = k
+
 class_names = list(labels2index.keys())
 
-def show_confusion_matrix(confusion_matrix, class_names):
+def show_confusion_matrix(confusion_matrix, class_names, file_name):
     cm = confusion_matrix.copy()
     # cell_counts = cm.flatten()
     cm_row_norm = cm / cm.sum(axis=1)[:, np.newaxis]
@@ -120,15 +118,37 @@ def show_confusion_matrix(confusion_matrix, class_names):
     # cell_labels = np.asarray(cell_labels).reshape(cm.shape[0], cm.shape[1])
 
     df_cm = pd.DataFrame(cm_row_norm, index=class_names, columns=class_names)
-
+    plt.figure(figsize=(32,24))
     # hmap = sns.heatmap(df_cm, annot=cell_labels, fmt='', cmap='Blues')
     hmap = sns.heatmap(df_cm, fmt='')#, xticklabels=True, yticklabels=True)
     hmap.yaxis.set_ticklabels(hmap.yaxis.get_ticklabels(), rotation=0, ha='right')
     hmap.xaxis.set_ticklabels(hmap.xaxis.get_ticklabels(), rotation=90, ha='right')
-    plt.ylabel('True Action')
-    plt.xlabel('Predicted Action')
-    plt.title('R3D_BERT_16_skip_frames')
-    plt.figure(figsize=(32, 24), dpi=80)
-    plt.show()
+    hmap.set(xlabel='True Action', ylabel='Predicted Action', title='R3D_BERT_16_skip_frames')
+    # plt.figure(figsize=(64, 48), dpi=80)
+    hmap.get_figure().savefig(f"./plots/{file_name}")
+    # plt.show()
 
-show_confusion_matrix(conf_matrix, class_names)
+show_confusion_matrix(conf_matrix, class_names, file_name="R3D_BERT_16_skip_frames_cm.png")
+
+
+# # Error Case Analysis
+# Top Class with best acc and bottom class with lowest acc
+
+acc_per_class = {}
+for i in range(num_classes):
+    acc_per_class[class_names[i]] = conf_matrix[i][i] / conf_matrix[i].sum()
+sorted_keys = sorted(acc_per_class, key=acc_per_class.get)
+
+print("Top 3 Best Class: ", sorted_keys[-3:])
+for i in range(1, 4):
+    i = -i
+    print(f"Accuracy {sorted_keys[i]}: {acc_per_class[sorted_keys[i]]}")
+
+
+print("Bottom 3 Worest Class: ", sorted_keys[:3])
+for i in range(3):
+    print(f"Accuracy {sorted_keys[i]}: {acc_per_class[sorted_keys[i]]}")
+
+
+
+
