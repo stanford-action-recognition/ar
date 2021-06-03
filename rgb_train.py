@@ -85,11 +85,19 @@ def train_model():
                 },
             ]
         elif config.model == "R3D_BERT":
-            model = R3D_BERT.R3D_BERTClassifier(num_classes=num_classes,
-                                               in_channels=3,
-                                               layer_sizes=(2, 2, 2, 2),
-                                               clip_len=CLIP_LEN,
-                                               pretrained=False)
+            if args.skip_frames == False:
+                model = R3D_BERT.R3D_BERTClassifier(num_classes=num_classes,
+                                                in_channels=3,
+                                                layer_sizes=(2, 2, 2, 2),
+                                                clip_len=CLIP_LEN,
+                                                pretrained=False)
+            else:
+                assert CLIP_LEN % 2 == 0 , "Has to be even number of frames"
+                model = R3D_BERT.R3D_BERTClassifier(num_classes=num_classes,
+                                                in_channels=3,
+                                                layer_sizes=(2, 2, 2, 2),
+                                                clip_len=int(CLIP_LEN // 2),
+                                                pretrained=False)
             train_params = model.parameters()
         else:
             print("We have not implement this model.")

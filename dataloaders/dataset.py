@@ -7,6 +7,9 @@ import numpy as np
 from torch.utils.data import Dataset
 from shutil import copytree
 import torch.nn.functional as F
+from args import get_args
+
+args = get_args()
 
 RESIZE_HEIGHT = 64
 RESIZE_WIDTH = 85
@@ -102,6 +105,9 @@ class RGBDataset(Dataset):
                 for id, label in enumerate(sorted(self.label2index)):
                     f.writelines(str(id + 1) + " " + label + "\n")
 
+        if args.skip_frames:
+            print("===== Skipping Frames =====") 
+
     def __len__(self):
         return len(self.fnames)
 
@@ -109,6 +115,9 @@ class RGBDataset(Dataset):
         # Loading and preprocessing.
         buffer = self.load_frames(self.fnames[index])
         buffer = self.crop(buffer, self.clip_len, self.crop_size)
+        # Skip frames
+        if args.skip_frames:
+            buffer = buffer[0::2, :, :]            
         labels = np.array(self.label_array[index])
 
         if self.split == "test" or "train":

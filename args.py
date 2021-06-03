@@ -113,5 +113,12 @@ def get_args():
         default=32,
         help="Temporal dimension",
     )
+    
+    parser.add_argument(
+        "--skip_frames",
+        type=bool,
+        default=False,
+        help="Skip Frames e.g. [0, 2, 4, 6, ... ,]",
+    )
 
     return parser.parse_args()
