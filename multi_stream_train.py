@@ -328,6 +328,7 @@ class Train():
                         filename = PRETRAINED_MODEL_FORMAT % (
                                 "fusion", "stream_fusion")
                         self.stream_fusion.save(self.stream_fusion, filename)
+                        self.wb.save(filename)
 
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
