@@ -1,3 +1,10 @@
+"""
+This is the result analysis file, Analysis Two Stream
+https://docs.google.com/spreadsheets/d/1P8tLi9_-slJdDZ40OF0ps5S3vSvy54dhb-MInMjX8ic/edit?ts=60b53433#gid=0
+
+1. Confusion matrix
+2. Incorrect samples
+"""
 from tqdm import tqdm
 import wandb
 
@@ -206,6 +213,27 @@ class Train():
                 print("Not supported optimizer.")
                 raise NotImplementedError
 
+    def eval(self):
+        running_loss = 0.0
+        running_corrects = 0.0
+        phase = 'val'
+
+        for i in range(len(self.stream_configs)):
+            self.stream_configs[i]["%s_dataloader_iter" % phase] = iter(self.stream_configs[i]["%s_dataloader" % phase])
+
+             if phase == "train":
+                    for stream_config in self.stream_configs:
+                        stream_config["model"].train()
+                    self.stream_fusion.train()
+            else:
+                for stream_config in self.stream_configs:
+                    stream_config["model"].eval()
+                self.stream_fusion.eval()
+
+
+        
+
+
     def train(self):
         max_val_acc = 0.0
         for epoch in tqdm(range(0, self.config.epochs), desc='Epoch'):
@@ -325,9 +353,6 @@ class Train():
                                 stream_config["dataset_name"], stream_config["model_name"])
                             torch.save(stream_config["model"].state_dict(), filename)
                             self.wb.save(filename)
-                        filename = PRETRAINED_MODEL_FORMAT % (
-                                "fusion", "stream_fusion")
-                        self.stream_fusion.save(self.stream_fusion, filename)
 
                 print(
                     "[{}] Epoch: {}/{} Loss: {} Acc: {}".format(
@@ -338,3 +363,4 @@ class Train():
 if __name__ == "__main__":
     train = Train()
     train.train()
+
